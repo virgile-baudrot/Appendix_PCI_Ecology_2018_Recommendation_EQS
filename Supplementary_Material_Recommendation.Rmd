@@ -1,5 +1,5 @@
 ---
-title: "supplementary Material for MFx"
+title: "Supplementary Material Recommendation EQS"
 author: "Virgile Baudrot and Sandrine Charles"
 date: "2 février 2018"
 output: pdf_document
@@ -35,7 +35,13 @@ load(file = "data_Mal_cst.rda")
 load(file = "data_Mal_var.rda")
 load(file = "data_PRZ_cst.rda")
 load(file = "data_PRZ_var.rda")
+```
 
+# Fitting models
+
+Models are fit with package `morse` v3.0.0 available on CRAN.
+
+```{r}
 # Model SD
 fit_Car_cstSD_MORSE <- morse::survFit(survData(Car_cst), model_type = "SD")
 fit_Cyp_cstSD_MORSE <- morse::survFit(survData(Cyp_cst), model_type = "SD")
@@ -65,40 +71,39 @@ fit_PRZ_varIT_MORSE <- morse::survFit(survData(PRZ_var), model_type = "IT")
 
 # # CONSTANT
 # ### SD
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_cstSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_cstSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_cstSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_cstSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Car_cstSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Cyp_cstSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Dim_cstSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Mal_cstSD_MORSE.rda")
 # ### IT
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_cstIT_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_cstIT_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_cstIT_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_cstIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Car_cstIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Cyp_cstIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Dim_cstIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Mal_cstIT_MORSE.rda")
 # 
 # # VARIABLE
 # ## morse
 # ### SD
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_varSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_varSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_varSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_varSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Car_varSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Cyp_varSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Dim_varSD_MORSE.rda")
+# load(file = "fit_cluster/fit_Mal_varSD_MORSE.rda")
 # ### IT
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_varIT_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_varIT_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_varIT_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_varIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Car_varIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Cyp_varIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Dim_varIT_MORSE.rda")
+# load(file = "fit_cluster/fit_Mal_varIT_MORSE.rda")
 # 
 # # PRZ
 # ## rstanTKTD
 # ## morse
-# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_cstSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_cstIT_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_varSD_MORSE.rda")
-# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_varIT_MORSE.rda")
+# load(file = "fit_cluster/fit_PRZ_cstSD_MORSE.rda")
+# load(file = "fit_cluster/fit_PRZ_cstIT_MORSE.rda")
+# load(file = "fit_cluster/fit_PRZ_varSD_MORSE.rda")
+# load(file = "fit_cluster/fit_PRZ_varIT_MORSE.rda")
 ```
 
-
-# Variable pulses
+# Computing of survival under variable pulses
 
 ## Car
 
@@ -287,111 +292,111 @@ CONC_mid =  max(fit_Cyp_cstIT_MORSE$original.data$conc)/(40*2/3)
 CONC_high =  max(fit_Cyp_cstIT_MORSE$original.data$conc)/(40*1/3)
 
 ###-------------------------------------------------------------------  Cyp_cstSD
-# ## low%
-# predict_Cyp_cstSD_lowRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
-#                                               Maximal_conc = CONC_low,
-#                                               recovery_time = 1.25,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "SD")
-# save(predict_Cyp_cstSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_lowRTeqAUC.rda")
-# ## mid%
-# predict_Cyp_cstSD_midRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
-#                                               Maximal_conc = CONC_mid,
-#                                               recovery_time = 2.6,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "SD")
-# save(predict_Cyp_cstSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_midRTeqAUC.rda")
-# ## high%
-# predict_Cyp_cstSD_highRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7.7,
-#                                                draws = 1000,
-#                                                max_time = 20,
-#                                                model_type = "SD")
-# save(predict_Cyp_cstSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_highRTeqAUC.rda")
-# 
-# ###-------------------------------------------------------------------  Cyp_cstIT
-# 
-# ## low%
-# predict_Cyp_cstIT_lowRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
-#                                               Maximal_conc = CONC_low,
-#                                               recovery_time = 1.25,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "IT")
-# save(predict_Cyp_cstIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_lowRTeqAUC.rda")
-# ## mid%
-# predict_Cyp_cstIT_midRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
-#                                               Maximal_conc = CONC_mid,
-#                                               recovery_time = 2.6,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "IT")
-# draws = 1000,save(predict_Cyp_cstIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_midRTeqAUC.rda")
-# ## high%
-# predict_Cyp_cstIT_highRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7.7,
-#                                                draws = 1000,
-#                                                max_time = 20,
-#                                                model_type = "IT")
-# save(predict_Cyp_cstIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_highRTeqAUC.rda")
-# 
-# ###-------------------------------------------------------------------  Cyp_varSD
-# 
-# ## low%
-# predict_Cyp_varSD_lowRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
-#                                               Maximal_conc = CONC_low,
-#                                               recovery_time = 1.25,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "SD")
-# save(predict_Cyp_varSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_lowRTeqAUC.rda")
-# ## mid%
-# predict_Cyp_varSD_midRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
-#                                               Maximal_conc = CONC_mid,
-#                                               recovery_time = 2.6,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "SD")
-# save(predict_Cyp_varSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_midRTeqAUC.rda")
-# ## high%
-# predict_Cyp_varSD_highRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7.7,
-#                                                draws = 1000,
-#                                                max_time = 20,
-#                                                model_type = "SD")
-# save(predict_Cyp_varSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_highRTeqAUC.rda")
-# 
-# ###-------------------------------------------------------------------  Cyp_varIT
-# 
-# ## low%
-# predict_Cyp_varIT_lowRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
-#                                               Maximal_conc = CONC_low,
-#                                               recovery_time = 1.25,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "IT")
-# save(predict_Cyp_varIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_lowRTeqAUC.rda")
-# ## mid%
-# predict_Cyp_varIT_midRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
-#                                               Maximal_conc = CONC_mid,
-#                                               recovery_time = 2.6,
-#                                               draws = 1000,
-#                                               max_time = 20,
-#                                               model_type = "IT")
-# save(predict_Cyp_varIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_midRTeqAUC.rda")
-# ## high%
-# predict_Cyp_varIT_highRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7.7,
-#                                                draws = 1000,
-#                                                max_time = 20,
-#                                                model_type = "IT")
-# save(predict_Cyp_varIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_highRTeqAUC.rda")
+## low%
+predict_Cyp_cstSD_lowRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Cyp_cstSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_lowRTeqAUC.rda")
+## mid%
+predict_Cyp_cstSD_midRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Cyp_cstSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_midRTeqAUC.rda")
+## high%
+predict_Cyp_cstSD_highRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Cyp_cstSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Cyp_cstIT
+
+## low%
+predict_Cyp_cstIT_lowRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Cyp_cstIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_lowRTeqAUC.rda")
+## mid%
+predict_Cyp_cstIT_midRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+draws = 1000,save(predict_Cyp_cstIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_midRTeqAUC.rda")
+## high%
+predict_Cyp_cstIT_highRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Cyp_cstIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Cyp_varSD
+
+## low%
+predict_Cyp_varSD_lowRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Cyp_varSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_lowRTeqAUC.rda")
+## mid%
+predict_Cyp_varSD_midRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Cyp_varSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_midRTeqAUC.rda")
+## high%
+predict_Cyp_varSD_highRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Cyp_varSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Cyp_varIT
+
+## low%
+predict_Cyp_varIT_lowRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Cyp_varIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_lowRTeqAUC.rda")
+## mid%
+predict_Cyp_varIT_midRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Cyp_varIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_midRTeqAUC.rda")
+## high%
+predict_Cyp_varIT_highRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Cyp_varIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_highRTeqAUC.rda")
 
 ###------------------------------------------------------------------- 
 ###------------------------------------------------------------------- 
@@ -998,7 +1003,7 @@ plt_MFx_PRZ_var_RTeqAUC =  grid.arrange(plt_PRZ_var_lowRTeqAUC, plt_PRZ_var_midR
 ggsave(plot = plt_MFx_PRZ_var_RTeqAUC, device = "png", filename = "img/plt_MFx_PRZ_var_RTeqAUC.png", width = 11, height = 7)
 ```
 
-# 2 pulses
+# Computing of survival under 2 pulses
 
 ## Car
 
@@ -1183,102 +1188,102 @@ ggsave(plot = plt_MFx_Car_var_2pulses, device = "png", filename = "img/plt_MFx_C
 
 ```{r}
 CONC_high =  max(fit_Cyp_cstIT_MORSE$original.data$conc)/20
-# ###-------------------------------------------------------------------  Cyp_cstSD
-# ## low%
-# predict_Cyp_cstSD_low2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
-#                                               Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
-#                                               recovery_time = 0.5,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_Cyp_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_low2pulses.rda")
-# ## mid%
-# predict_Cyp_cstSD_mid2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
-#                                               Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
-#                                               recovery_time = 2,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_Cyp_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_mid2pulses.rda")
-# ## high%
-# predict_Cyp_cstSD_high2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
-#                                                Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
-#                                                recovery_time = 7,
-#                                                max_time = 10,
-#                                                model_type = "SD")
-# save(predict_Cyp_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_high2pulses.rda")
-# 
-# ###-------------------------------------------------------------------  Cyp_cstIT
-# 
-# ## low%
-# predict_Cyp_cstIT_low2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
-#                                               Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
-#                                               recovery_time = 0.5,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_Cyp_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_low2pulses.rda")
-# ## mid%
-# predict_Cyp_cstIT_mid2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
-#                                               Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
-#                                               recovery_time = 2,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_Cyp_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_mid2pulses.rda")
-# ## high%
-# predict_Cyp_cstIT_high2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
-#                                                Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
-#                                                recovery_time = 7,
-#                                                max_time = 10,
-#                                                model_type = "IT")
-# save(predict_Cyp_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_high2pulses.rda")
-# 
-# 
-# 
-# ###-------------------------------------------------------------------  Cyp_varSD
-# 
-# ## low%
-# predict_Cyp_varSD_low2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 0.5,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_Cyp_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_low2pulses.rda")
-# ## mid%
-# predict_Cyp_varSD_mid2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 2,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_Cyp_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_mid2pulses.rda")
-# ## high%
-# predict_Cyp_varSD_high2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7,
-#                                                max_time = 10,
-#                                                model_type = "SD")
-# save(predict_Cyp_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_high2pulses.rda")
-# 
-# ###-------------------------------------------------------------------  Cyp_varIT
-# 
-# ## low%
-# predict_Cyp_varIT_low2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 0.5,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_Cyp_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_low2pulses.rda")
-# ## mid%
-# predict_Cyp_varIT_mid2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 2,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_Cyp_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_mid2pulses.rda")
-# ## high%
-# predict_Cyp_varIT_high2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7,
-#                                                max_time = 10,
-#                                                model_type = "IT")
-# save(predict_Cyp_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_high2pulses.rda")
+###-------------------------------------------------------------------  Cyp_cstSD
+## low%
+predict_Cyp_cstSD_low2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
+                                              recovery_time = 0.5,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Cyp_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_low2pulses.rda")
+## mid%
+predict_Cyp_cstSD_mid2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
+                                              recovery_time = 2,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Cyp_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_mid2pulses.rda")
+## high%
+predict_Cyp_cstSD_high2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
+                                               Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
+                                               recovery_time = 7,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Cyp_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Cyp_cstIT
+
+## low%
+predict_Cyp_cstIT_low2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
+                                              recovery_time = 0.5,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Cyp_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_low2pulses.rda")
+## mid%
+predict_Cyp_cstIT_mid2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
+                                              recovery_time = 2,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Cyp_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_mid2pulses.rda")
+## high%
+predict_Cyp_cstIT_high2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
+                                               Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
+                                               recovery_time = 7,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Cyp_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_high2pulses.rda")
+
+
+
+###-------------------------------------------------------------------  Cyp_varSD
+
+## low%
+predict_Cyp_varSD_low2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Cyp_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_low2pulses.rda")
+## mid%
+predict_Cyp_varSD_mid2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Cyp_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_mid2pulses.rda")
+## high%
+predict_Cyp_varSD_high2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Cyp_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Cyp_varIT
+
+## low%
+predict_Cyp_varIT_low2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Cyp_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_low2pulses.rda")
+## mid%
+predict_Cyp_varIT_mid2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Cyp_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_mid2pulses.rda")
+## high%
+predict_Cyp_varIT_high2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Cyp_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_high2pulses.rda")
 
 ###------------------------------------------------------------------- 
 ###------------------------------------------------------------------- 
@@ -1711,115 +1716,115 @@ ggsave(plot = plt_MFx_Mal_var_2pulses, device = "png", filename = "img/plt_MFx_M
 ```{r}
 CONC_high = max(fit_PRZ_cstSD_MORSE$original.data$conc)/1
 
-# ###-------------------------------------------------------------------  PRZ_cstSD
-# ## low%
-# predict_PRZ_cstSD_low2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 0.5,
-#                                               draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_PRZ_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_low2pulses.rda")
-# ## mid%
-# predict_PRZ_cstSD_mid2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 2,
-#                                                draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_PRZ_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_mid2pulses.rda")
-# # high%
-# predict_PRZ_cstSD_high2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7,
-#                                                 draws = 1000,
-#                                                max_time = 10,
-#                                                model_type = "SD",
-#                                                draws = 4000)
-# save(predict_PRZ_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_high2pulses.rda")
-# 
-# ###-------------------------------------------------------------------  PRZ_cstIT
-# 
-# ## low%
-# predict_PRZ_cstIT_low2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 0.5,
-#                                                draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_PRZ_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_low2pulses.rda")
-# ## mid%
-# predict_PRZ_cstIT_mid2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 2,
-#                                                draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_PRZ_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_mid2pulses.rda")
-# ## high%
-# predict_PRZ_cstIT_high2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7,
-#                                               draws = 1000,
-#                                                max_time = 10,
-#                                                model_type = "IT")
-# save(predict_PRZ_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_high2pulses.rda")
-# 
-# 
-# 
-# ###-------------------------------------------------------------------  PRZ_varSD
-# 
-# # low%
-# predict_PRZ_varSD_low2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 0.5,
-#                                                draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_PRZ_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_low2pulses.rda")
-# ## mid%
-# predict_PRZ_varSD_mid2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 2,
-#                                                draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "SD")
-# save(predict_PRZ_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_mid2pulses.rda")
-# ## high%
-# predict_PRZ_varSD_high2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7,
-#                                                 draws = 1000,
-#                                                max_time = 10,
-#                                                model_type = "SD")
-# save(predict_PRZ_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_high2pulses.rda")
-# 
-# ###-------------------------------------------------------------------  PRZ_varIT
-# 
-# ## low%
-# predict_PRZ_varIT_low2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 0.5,
-#                                                draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_PRZ_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_low2pulses.rda")
-# ## mid%
-# predict_PRZ_varIT_mid2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
-#                                               Maximal_conc = CONC_high,
-#                                               recovery_time = 2,
-#                                                draws = 1000,
-#                                               max_time = 10,
-#                                               model_type = "IT")
-# save(predict_PRZ_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_mid2pulses.rda")
-# ## high%
-# predict_PRZ_varIT_high2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
-#                                                Maximal_conc = CONC_high,
-#                                                recovery_time = 7,
-#                                                 draws = 1000,
-#                                                max_time = 10,
-#                                                model_type = "IT")
-# save(predict_PRZ_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_high2pulses.rda")
+###-------------------------------------------------------------------  PRZ_cstSD
+## low%
+predict_PRZ_cstSD_low2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_PRZ_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_low2pulses.rda")
+## mid%
+predict_PRZ_cstSD_mid2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                               draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_PRZ_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_mid2pulses.rda")
+# high%
+predict_PRZ_cstSD_high2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                                draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD",
+                                               draws = 4000)
+save(predict_PRZ_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  PRZ_cstIT
+
+## low%
+predict_PRZ_cstIT_low2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                               draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_PRZ_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_low2pulses.rda")
+## mid%
+predict_PRZ_cstIT_mid2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                               draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_PRZ_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_mid2pulses.rda")
+## high%
+predict_PRZ_cstIT_high2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                              draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_PRZ_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_high2pulses.rda")
+
+
+
+###-------------------------------------------------------------------  PRZ_varSD
+
+# low%
+predict_PRZ_varSD_low2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                               draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_PRZ_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_low2pulses.rda")
+## mid%
+predict_PRZ_varSD_mid2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                               draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_PRZ_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_mid2pulses.rda")
+## high%
+predict_PRZ_varSD_high2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                                draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_PRZ_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  PRZ_varIT
+
+## low%
+predict_PRZ_varIT_low2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                               draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_PRZ_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_low2pulses.rda")
+## mid%
+predict_PRZ_varIT_mid2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                               draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_PRZ_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_mid2pulses.rda")
+## high%
+predict_PRZ_varIT_high2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                                draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_PRZ_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_high2pulses.rda")
 
 ###------------------------------------------------------------------- 
 ###------------------------------------------------------------------- 
@@ -2188,17 +2193,17 @@ plt_LCx_alongTime <- function(x, title = NULL){
 ## SD
 
 
-#LCx_alongTime_Car_cstSD <- LCx_alongTime(x = fit_Car_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e4, length_out = 20, npointsX1 = 5e3) 
-# LCx_alongTime_Cyp_cstSD <- LCx_alongTime(x = fit_Cyp_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.5, length_out = 20)
-# LCx_alongTime_Dim_cstSD <- LCx_alongTime(x = fit_Dim_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 3e5, length_out = 20, npointsX1 = 1e3, npointsX2 = 1e3)
-# LCx_alongTime_Mal_cstSD <- LCx_alongTime(x = fit_Mal_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
-#LCx_alongTime_PRZ_cstSD <- LCx_alongTime(x = fit_PRZ_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 100, length_out = 20, npointsX1 = 1e3)
+LCx_alongTime_Car_cstSD <- LCx_alongTime(x = fit_Car_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e4, length_out = 20, npointsX1 = 5e3)
+LCx_alongTime_Cyp_cstSD <- LCx_alongTime(x = fit_Cyp_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.5, length_out = 20)
+LCx_alongTime_Dim_cstSD <- LCx_alongTime(x = fit_Dim_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 3e5, length_out = 20, npointsX1 = 1e3, npointsX2 = 1e3)
+LCx_alongTime_Mal_cstSD <- LCx_alongTime(x = fit_Mal_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
+LCx_alongTime_PRZ_cstSD <- LCx_alongTime(x = fit_PRZ_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 100, length_out = 20, npointsX1 = 1e3)
 
-# save(LCx_alongTime_Car_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstSD.rda")
-# save(LCx_alongTime_Cyp_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstSD.rda")
-# save(LCx_alongTime_Dim_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstSD.rda")
-# save(LCx_alongTime_Mal_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstSD.rda")
-# save(LCx_alongTime_PRZ_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstSD.rda")
+save(LCx_alongTime_Car_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstSD.rda")
+save(LCx_alongTime_Cyp_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstSD.rda")
+save(LCx_alongTime_Dim_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstSD.rda")
+save(LCx_alongTime_Mal_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstSD.rda")
+save(LCx_alongTime_PRZ_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstSD.rda")
@@ -2217,17 +2222,17 @@ gridExtra::grid.arrange(
 
 ## IT
 
-# LCx_alongTime_Car_cstIT <- LCx_alongTime(x = fit_Car_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e4, length_out = 20) 
-# LCx_alongTime_Cyp_cstIT <- LCx_alongTime(x = fit_Cyp_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.5, length_out = 20)
-# LCx_alongTime_Dim_cstIT <- LCx_alongTime(x = fit_Dim_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e5, length_out = 20)
-# LCx_alongTime_Mal_cstIT <- LCx_alongTime(x = fit_Mal_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
-# LCx_alongTime_PRZ_cstIT <- LCx_alongTime(x = fit_PRZ_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 100, length_out = 20)
+LCx_alongTime_Car_cstIT <- LCx_alongTime(x = fit_Car_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e4, length_out = 20)
+LCx_alongTime_Cyp_cstIT <- LCx_alongTime(x = fit_Cyp_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.5, length_out = 20)
+LCx_alongTime_Dim_cstIT <- LCx_alongTime(x = fit_Dim_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e5, length_out = 20)
+LCx_alongTime_Mal_cstIT <- LCx_alongTime(x = fit_Mal_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
+LCx_alongTime_PRZ_cstIT <- LCx_alongTime(x = fit_PRZ_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 100, length_out = 20)
 # 
-# save(LCx_alongTime_Car_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstIT.rda")
-# save(LCx_alongTime_Cyp_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstIT.rda")
-# save(LCx_alongTime_Dim_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstIT.rda")
-# save(LCx_alongTime_Mal_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstIT.rda")
-# save(LCx_alongTime_PRZ_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstIT.rda")
+save(LCx_alongTime_Car_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstIT.rda")
+save(LCx_alongTime_Cyp_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstIT.rda")
+save(LCx_alongTime_Dim_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstIT.rda")
+save(LCx_alongTime_Mal_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstIT.rda")
+save(LCx_alongTime_PRZ_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstIT.rda")
@@ -2253,17 +2258,17 @@ gridExtra::grid.arrange(
 # var -----------------------------------------------------------------------------
 ## SD
 
-# LCx_alongTime_Car_varSD <- LCx_alongTime(x = fit_Car_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e4, length_out = 20, npointsX1 = 1e3) 
-# LCx_alongTime_Cyp_varSD <- LCx_alongTime(x = fit_Cyp_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.2, length_out = 20)
-# LCx_alongTime_Dim_varSD <- LCx_alongTime(x = fit_Dim_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e5, length_out = 20)
-#LCx_alongTime_Mal_varSD <- LCx_alongTime(x = fit_Mal_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20, npointsX1 = 1e3)
-# LCx_alongTime_PRZ_varSD <- LCx_alongTime(x = fit_PRZ_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 250, length_out = 20)
-# 
-# save(LCx_alongTime_Car_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varSD.rda")
-# save(LCx_alongTime_Cyp_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varSD.rda")
-# save(LCx_alongTime_Dim_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varSD.rda")
-# save(LCx_alongTime_Mal_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varSD.rda")
-# save(LCx_alongTime_PRZ_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varSD.rda")
+LCx_alongTime_Car_varSD <- LCx_alongTime(x = fit_Car_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e4, length_out = 20, npointsX1 = 1e3)
+LCx_alongTime_Cyp_varSD <- LCx_alongTime(x = fit_Cyp_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.2, length_out = 20)
+LCx_alongTime_Dim_varSD <- LCx_alongTime(x = fit_Dim_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e5, length_out = 20)
+LCx_alongTime_Mal_varSD <- LCx_alongTime(x = fit_Mal_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20, npointsX1 = 1e3)
+LCx_alongTime_PRZ_varSD <- LCx_alongTime(x = fit_PRZ_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 250, length_out = 20)
+
+save(LCx_alongTime_Car_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varSD.rda")
+save(LCx_alongTime_Cyp_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varSD.rda")
+save(LCx_alongTime_Dim_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varSD.rda")
+save(LCx_alongTime_Mal_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varSD.rda")
+save(LCx_alongTime_PRZ_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varSD.rda")
@@ -2287,17 +2292,17 @@ gridExtra::grid.arrange(
 )
 
 ## IT
-# LCx_alongTime_Car_varIT <- LCx_alongTime(x = fit_Car_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e4, length_out = 20) 
-# LCx_alongTime_Cyp_varIT <- LCx_alongTime(x = fit_Cyp_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2, length_out = 20)
-# LCx_alongTime_Dim_varIT <- LCx_alongTime(x = fit_Dim_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e6, length_out = 20)
-# LCx_alongTime_Mal_varIT <- LCx_alongTime(x = fit_Mal_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
-# LCx_alongTime_PRZ_varIT <- LCx_alongTime(x = fit_PRZ_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e3, length_out = 20)
-# 
-# save(LCx_alongTime_Car_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varIT.rda")
-# save(LCx_alongTime_Cyp_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varIT.rda")
-# save(LCx_alongTime_Dim_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varIT.rda")
-# save(LCx_alongTime_Mal_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varIT.rda")
-# save(LCx_alongTime_PRZ_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varIT.rda")
+LCx_alongTime_Car_varIT <- LCx_alongTime(x = fit_Car_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e4, length_out = 20)
+LCx_alongTime_Cyp_varIT <- LCx_alongTime(x = fit_Cyp_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2, length_out = 20)
+LCx_alongTime_Dim_varIT <- LCx_alongTime(x = fit_Dim_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e6, length_out = 20)
+LCx_alongTime_Mal_varIT <- LCx_alongTime(x = fit_Mal_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
+LCx_alongTime_PRZ_varIT <- LCx_alongTime(x = fit_PRZ_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e3, length_out = 20)
+
+save(LCx_alongTime_Car_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varIT.rda")
+save(LCx_alongTime_Cyp_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varIT.rda")
+save(LCx_alongTime_Dim_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varIT.rda")
+save(LCx_alongTime_Mal_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varIT.rda")
+save(LCx_alongTime_PRZ_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varIT.rda")
@@ -2540,16 +2545,16 @@ plot_LCx_alongX <- function(x_SD, x_IT, title){
 }
 
 # cst SD
-# LCx_alongX_Car_cstSD <- LCx_along_X(fit_Car_cstSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_Cyp_cstSD <- LCx_along_X(fit_Cyp_cstSD_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
-# LCx_alongX_Dim_cstSD <- LCx_along_X(fit_Dim_cstSD_MORSE, conc_range = c(0,5e5), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_Mal_cstSD <- LCx_along_X(fit_Mal_cstSD_MORSE, conc_range = c(0,10), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_PRZ_cstSD <- LCx_along_X(fit_PRZ_cstSD_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
-# save(LCx_alongX_Car_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstSD.rda")
-# save(LCx_alongX_Cyp_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstSD.rda")
-# save(LCx_alongX_Dim_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstSD.rda")
-# save(LCx_alongX_Mal_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstSD.rda")
-# save(LCx_alongX_PRZ_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstSD.rda")
+LCx_alongX_Car_cstSD <- LCx_along_X(fit_Car_cstSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_Cyp_cstSD <- LCx_along_X(fit_Cyp_cstSD_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+LCx_alongX_Dim_cstSD <- LCx_along_X(fit_Dim_cstSD_MORSE, conc_range = c(0,5e5), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_Mal_cstSD <- LCx_along_X(fit_Mal_cstSD_MORSE, conc_range = c(0,10), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_PRZ_cstSD <- LCx_along_X(fit_PRZ_cstSD_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
+save(LCx_alongX_Car_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstSD.rda")
+save(LCx_alongX_Cyp_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstSD.rda")
+save(LCx_alongX_Dim_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstSD.rda")
+save(LCx_alongX_Mal_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstSD.rda")
+save(LCx_alongX_PRZ_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstSD.rda")
@@ -2558,16 +2563,16 @@ load(file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstSD.rda")
 
 
 # cst IT
-# LCx_alongX_Car_cstIT <- LCx_along_X(fit_Car_cstIT_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_Cyp_cstIT <- LCx_along_X(fit_Cyp_cstIT_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
-# LCx_alongX_Dim_cstIT <- LCx_along_X(fit_Dim_cstIT_MORSE, conc_range = c(0,5e5),time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_Mal_cstIT <- LCx_along_X(fit_Mal_cstIT_MORSE, conc_range = c(0,10), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_PRZ_cstIT <- LCx_along_X(fit_PRZ_cstIT_MORSE, conc_range = c(0,100),time_LCx = 4, npoints = 1e3, length = 1e2)
-# save(LCx_alongX_Car_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstIT.rda")
-# save(LCx_alongX_Cyp_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstIT.rda")
-# save(LCx_alongX_Dim_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstIT.rda")
-# save(LCx_alongX_Mal_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstIT.rda")
-# save(LCx_alongX_PRZ_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstIT.rda")
+LCx_alongX_Car_cstIT <- LCx_along_X(fit_Car_cstIT_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_Cyp_cstIT <- LCx_along_X(fit_Cyp_cstIT_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+LCx_alongX_Dim_cstIT <- LCx_along_X(fit_Dim_cstIT_MORSE, conc_range = c(0,5e5),time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_Mal_cstIT <- LCx_along_X(fit_Mal_cstIT_MORSE, conc_range = c(0,10), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_PRZ_cstIT <- LCx_along_X(fit_PRZ_cstIT_MORSE, conc_range = c(0,100),time_LCx = 4, npoints = 1e3, length = 1e2)
+save(LCx_alongX_Car_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstIT.rda")
+save(LCx_alongX_Cyp_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstIT.rda")
+save(LCx_alongX_Dim_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstIT.rda")
+save(LCx_alongX_Mal_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstIT.rda")
+save(LCx_alongX_PRZ_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstIT.rda")
@@ -2584,16 +2589,16 @@ gridExtra::grid.arrange(
 )
 
 # var SD
-# LCx_alongX_Car_varSD <- LCx_along_X(fit_Car_varSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_Cyp_varSD <- LCx_along_X(fit_Cyp_varSD_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
-# LCx_alongX_Dim_varSD <- LCx_along_X(fit_Dim_varSD_MORSE, conc_range = c(0,5e6), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_Mal_varSD <- LCx_along_X(fit_Mal_varSD_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_PRZ_varSD <- LCx_along_X(fit_PRZ_varSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
-# save(LCx_alongX_Car_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Car_varSD.rda")
-# save(LCx_alongX_Cyp_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varSD.rda")
-# save(LCx_alongX_Dim_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varSD.rda")
-# save(LCx_alongX_Mal_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varSD.rda")
-# save(LCx_alongX_PRZ_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varSD.rda")
+LCx_alongX_Car_varSD <- LCx_along_X(fit_Car_varSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_Cyp_varSD <- LCx_along_X(fit_Cyp_varSD_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+LCx_alongX_Dim_varSD <- LCx_along_X(fit_Dim_varSD_MORSE, conc_range = c(0,5e6), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_Mal_varSD <- LCx_along_X(fit_Mal_varSD_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_PRZ_varSD <- LCx_along_X(fit_PRZ_varSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+save(LCx_alongX_Car_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Car_varSD.rda")
+save(LCx_alongX_Cyp_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varSD.rda")
+save(LCx_alongX_Dim_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varSD.rda")
+save(LCx_alongX_Mal_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varSD.rda")
+save(LCx_alongX_PRZ_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_varSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varSD.rda")
@@ -2601,16 +2606,16 @@ load(file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varSD.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varSD.rda")
 
 # var IT
-# LCx_alongX_Car_varIT <- LCx_along_X(fit_Car_varIT_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e3)
-# LCx_alongX_Cyp_varIT <- LCx_along_X(fit_Cyp_varIT_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
-# LCx_alongX_Dim_varIT <- LCx_along_X(fit_Dim_varIT_MORSE, conc_range = c(0,5e6), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_Mal_varIT <- LCx_along_X(fit_Mal_varIT_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
-# LCx_alongX_PRZ_varIT <- LCx_along_X(fit_PRZ_varIT_MORSE, conc_range = c(0,500), time_LCx = 4, npoints = 1e3, length = 1e2)
-# save(LCx_alongX_Car_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Car_varIT.rda")
-# save(LCx_alongX_Cyp_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varIT.rda")
-# save(LCx_alongX_Dim_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varIT.rda")
-# save(LCx_alongX_Mal_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varIT.rda")
-# save(LCx_alongX_PRZ_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varIT.rda")
+LCx_alongX_Car_varIT <- LCx_along_X(fit_Car_varIT_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e3)
+LCx_alongX_Cyp_varIT <- LCx_along_X(fit_Cyp_varIT_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+LCx_alongX_Dim_varIT <- LCx_along_X(fit_Dim_varIT_MORSE, conc_range = c(0,5e6), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_Mal_varIT <- LCx_along_X(fit_Mal_varIT_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
+LCx_alongX_PRZ_varIT <- LCx_along_X(fit_PRZ_varIT_MORSE, conc_range = c(0,500), time_LCx = 4, npoints = 1e3, length = 1e2)
+save(LCx_alongX_Car_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Car_varIT.rda")
+save(LCx_alongX_Cyp_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varIT.rda")
+save(LCx_alongX_Dim_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varIT.rda")
+save(LCx_alongX_Mal_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varIT.rda")
+save(LCx_alongX_PRZ_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_varIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varIT.rda")
 load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varIT.rda")
@@ -2824,17 +2829,17 @@ ggsave(plot = depTime_plot_PRZ, device = "png", filename = "img/depTime_plot_PRZ
 For each compound, we only select the worst case that we divide by a factor 100 and try the MFx analysis
 
 ```{r}
-load(file = "DATA_SIMULATION/data_PRZ_cst.rda")
-load(file = "DATA_SIMULATION/data_Car_cst.rda")
-load(file = "DATA_SIMULATION/data_Cyp_cst.rda")
-load(file = "DATA_SIMULATION/data_Dim_cst.rda")
-load(file = "DATA_SIMULATION/data_Mal_cst.rda")
+load(file = "data_PRZ_cst.rda")
+load(file = "data_Car_cst.rda")
+load(file = "data_Cyp_cst.rda")
+load(file = "data_Dim_cst.rda")
+load(file = "data_Mal_cst.rda")
 #
-load(file = "DATA_SIMULATION/data_PRZ_var.rda")
-load(file = "DATA_SIMULATION/data_Car_var.rda")
-load(file = "DATA_SIMULATION/data_Cyp_var.rda")
-load(file = "DATA_SIMULATION/data_Dim_var.rda")
-load(file = "DATA_SIMULATION/data_Mal_var.rda")
+load(file = "data_PRZ_var.rda")
+load(file = "data_Car_var.rda")
+load(file = "data_Cyp_var.rda")
+load(file = "data_Dim_var.rda")
+load(file = "data_Mal_var.rda")
 ```
 
 ## Profiles
@@ -3050,27 +3055,27 @@ plot_MFx_alongX <- function(MFx_alongX_SD, MFx_alongX_IT, title){
 ```{r}
 X_vec <- seq(10, 90, length = 25)
 
-# MFx_alongX_Car_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Car_cstSD_MORSE, profile = MFx_profile_Car_cst)
-# save(MFx_alongX_Car_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstSD.rda")
-# MFx_alongX_Cyp_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_cstSD_MORSE, profile = MFx_profile_Cyp_cst)
-# save(MFx_alongX_Cyp_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstSD.rda")
-# MFx_alongX_Dim_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_cstSD_MORSE, profile = MFx_profile_Dim_cst)
-# save(MFx_alongX_Dim_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstSD.rda")
-# MFx_alongX_Mal_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_cstSD_MORSE, profile = MFx_profile_Mal_cst)
-# save(MFx_alongX_Mal_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstSD.rda")
-# MFx_alongX_PRZ_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_cstSD_MORSE, profile = MFx_profile_PRZ_cst)
-# save(MFx_alongX_PRZ_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstSD.rda")
-# 
-# MFx_alongX_Car_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Car_cstIT_MORSE, profile = MFx_profile_Car_cst)
-# save(MFx_alongX_Car_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstIT.rda")
-# MFx_alongX_Cyp_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_cstIT_MORSE, profile = MFx_profile_Cyp_cst)
-# save(MFx_alongX_Cyp_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstIT.rda")
-# MFx_alongX_Dim_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_cstIT_MORSE, profile = MFx_profile_Dim_cst)
-# save(MFx_alongX_Dim_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstIT.rda")
-# MFx_alongX_Mal_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_cstIT_MORSE, profile = MFx_profile_Mal_cst)
-# save(MFx_alongX_Mal_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstIT.rda")
-# MFx_alongX_PRZ_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_cstIT_MORSE, profile = MFx_profile_PRZ_cst)
-# save(MFx_alongX_PRZ_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstIT.rda")
+MFx_alongX_Car_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Car_cstSD_MORSE, profile = MFx_profile_Car_cst)
+save(MFx_alongX_Car_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstSD.rda")
+MFx_alongX_Cyp_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_cstSD_MORSE, profile = MFx_profile_Cyp_cst)
+save(MFx_alongX_Cyp_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstSD.rda")
+MFx_alongX_Dim_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_cstSD_MORSE, profile = MFx_profile_Dim_cst)
+save(MFx_alongX_Dim_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstSD.rda")
+MFx_alongX_Mal_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_cstSD_MORSE, profile = MFx_profile_Mal_cst)
+save(MFx_alongX_Mal_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstSD.rda")
+MFx_alongX_PRZ_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_cstSD_MORSE, profile = MFx_profile_PRZ_cst)
+save(MFx_alongX_PRZ_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstSD.rda")
+
+MFx_alongX_Car_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Car_cstIT_MORSE, profile = MFx_profile_Car_cst)
+save(MFx_alongX_Car_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstIT.rda")
+MFx_alongX_Cyp_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_cstIT_MORSE, profile = MFx_profile_Cyp_cst)
+save(MFx_alongX_Cyp_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstIT.rda")
+MFx_alongX_Dim_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_cstIT_MORSE, profile = MFx_profile_Dim_cst)
+save(MFx_alongX_Dim_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstIT.rda")
+MFx_alongX_Mal_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_cstIT_MORSE, profile = MFx_profile_Mal_cst)
+save(MFx_alongX_Mal_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstIT.rda")
+MFx_alongX_PRZ_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_cstIT_MORSE, profile = MFx_profile_PRZ_cst)
+save(MFx_alongX_PRZ_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstIT.rda")
 
 load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstSD.rda")
@@ -3084,27 +3089,27 @@ load(file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstIT.rda")
 
-# MFx_alongX_Car_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varA)
-# save(MFx_alongX_Car_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_A.rda")
-# MFx_alongX_Cyp_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varA)
-# save(MFx_alongX_Cyp_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_A.rda")
-# MFx_alongX_Dim_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varA)
-# save(MFx_alongX_Dim_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_A.rda")
-# MFx_alongX_Mal_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varA)
-# save(MFx_alongX_Mal_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_A.rda")
-# MFx_alongX_PRZ_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varA)
-# save(MFx_alongX_PRZ_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_A.rda")
+MFx_alongX_Car_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varA)
+save(MFx_alongX_Car_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_A.rda")
+MFx_alongX_Cyp_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varA)
+save(MFx_alongX_Cyp_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_A.rda")
+MFx_alongX_Dim_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varA)
+save(MFx_alongX_Dim_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_A.rda")
+MFx_alongX_Mal_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varA)
+save(MFx_alongX_Mal_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_A.rda")
+MFx_alongX_PRZ_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varA)
+save(MFx_alongX_PRZ_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_A.rda")
 
-# MFx_alongX_Car_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varA)
-# save(MFx_alongX_Car_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_A.rda")
-# MFx_alongX_Cyp_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varA)
-# save(MFx_alongX_Cyp_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_A.rda")
-# MFx_alongX_Dim_varIT_A <- MFx_alongX(X_vec = seq(10, 70, length = 19), fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varA)
-# save(MFx_alongX_Dim_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_A.rda")
-# MFx_alongX_Mal_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varA)
-# save(MFx_alongX_Mal_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_A.rda")
-# MFx_alongX_PRZ_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varA)
-# save(MFx_alongX_PRZ_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_A.rda")
+MFx_alongX_Car_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varA)
+save(MFx_alongX_Car_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_A.rda")
+MFx_alongX_Cyp_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varA)
+save(MFx_alongX_Cyp_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_A.rda")
+MFx_alongX_Dim_varIT_A <- MFx_alongX(X_vec = seq(10, 70, length = 19), fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varA)
+save(MFx_alongX_Dim_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_A.rda")
+MFx_alongX_Mal_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varA)
+save(MFx_alongX_Mal_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_A.rda")
+MFx_alongX_PRZ_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varA)
+save(MFx_alongX_PRZ_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_A.rda")
 
 load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_A.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_A.rda")
@@ -3119,27 +3124,27 @@ load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_A.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_A.rda")
 
 
-# MFx_alongX_Car_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varB)
-# save(MFx_alongX_Car_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_B.rda")
-# MFx_alongX_Cyp_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varB)
-# save(MFx_alongX_Cyp_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_B.rda")
-# MFx_alongX_Dim_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varB)
-# save(MFx_alongX_Dim_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_B.rda")
-# MFx_alongX_Mal_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varB)
-# save(MFx_alongX_Mal_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_B.rda")
-# MFx_alongX_PRZ_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varB)
-# save(MFx_alongX_PRZ_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_B.rda")
-# 
-# MFx_alongX_Car_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varB)
-# save(MFx_alongX_Car_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_B.rda")
-# MFx_alongX_Cyp_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varB)
-# save(MFx_alongX_Cyp_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_B.rda")
-# MFx_alongX_Dim_varIT_B <- MFx_alongX(X_vec = seq(10, 70, length = 19), fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varB)
-# save(MFx_alongX_Dim_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_B.rda")
-# MFx_alongX_Mal_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varB)
-# save(MFx_alongX_Mal_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_B.rda")
-# MFx_alongX_PRZ_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varB)
-# save(MFx_alongX_PRZ_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_B.rda")
+MFx_alongX_Car_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varB)
+save(MFx_alongX_Car_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_B.rda")
+MFx_alongX_Cyp_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varB)
+save(MFx_alongX_Cyp_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_B.rda")
+MFx_alongX_Dim_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varB)
+save(MFx_alongX_Dim_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_B.rda")
+MFx_alongX_Mal_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varB)
+save(MFx_alongX_Mal_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_B.rda")
+MFx_alongX_PRZ_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varB)
+save(MFx_alongX_PRZ_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_B.rda")
+
+MFx_alongX_Car_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varB)
+save(MFx_alongX_Car_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_B.rda")
+MFx_alongX_Cyp_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varB)
+save(MFx_alongX_Cyp_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_B.rda")
+MFx_alongX_Dim_varIT_B <- MFx_alongX(X_vec = seq(10, 70, length = 19), fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varB)
+save(MFx_alongX_Dim_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_B.rda")
+MFx_alongX_Mal_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varB)
+save(MFx_alongX_Mal_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_B.rda")
+MFx_alongX_PRZ_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varB)
+save(MFx_alongX_PRZ_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_B.rda")
 
 load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_B.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_B.rda")
@@ -3250,27 +3255,27 @@ plot_MFx_alongTime <- function(MFx_alongTime_SD, MFx_alongTime_IT, title, time_m
 ```{r}
 Time_vec = seq(1, 10, length.out = 10)
 
-# MFx_alongTime_Car_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_cstSD_MORSE, profile = MFx_profile_Car_cst)
-# save(MFx_alongTime_Car_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstSD.rda")
-# MFx_alongTime_Cyp_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_cstSD_MORSE, profile = MFx_profile_Cyp_cst)
-# save(MFx_alongTime_Cyp_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstSD.rda")
-# MFx_alongTime_Dim_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_cstSD_MORSE, profile = MFx_profile_Dim_cst)
-# save(MFx_alongTime_Dim_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstSD.rda")
-# MFx_alongTime_Mal_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_cstSD_MORSE, profile = MFx_profile_Mal_cst)
-# save(MFx_alongTime_Mal_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstSD.rda")
-# MFx_alongTime_PRZ_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_cstSD_MORSE, profile = MFx_profile_PRZ_cst)
-# save(MFx_alongTime_PRZ_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstSD.rda")
-# 
-# MFx_alongTime_Car_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_cstIT_MORSE, profile = MFx_profile_Car_cst)
-# save(MFx_alongTime_Car_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstIT.rda")
-# MFx_alongTime_Cyp_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_cstIT_MORSE, profile = MFx_profile_Cyp_cst)
-# save(MFx_alongTime_Cyp_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstIT.rda")
-# MFx_alongTime_Dim_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_cstIT_MORSE, profile = MFx_profile_Dim_cst)
-# save(MFx_alongTime_Dim_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstIT.rda")
-# MFx_alongTime_Mal_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_cstIT_MORSE, profile = MFx_profile_Mal_cst)
-# save(MFx_alongTime_Mal_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstIT.rda")
-# MFx_alongTime_PRZ_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_cstIT_MORSE, profile = MFx_profile_PRZ_cst)
-# save(MFx_alongTime_PRZ_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstIT.rda")
+MFx_alongTime_Car_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_cstSD_MORSE, profile = MFx_profile_Car_cst)
+save(MFx_alongTime_Car_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstSD.rda")
+MFx_alongTime_Cyp_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_cstSD_MORSE, profile = MFx_profile_Cyp_cst)
+save(MFx_alongTime_Cyp_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstSD.rda")
+MFx_alongTime_Dim_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_cstSD_MORSE, profile = MFx_profile_Dim_cst)
+save(MFx_alongTime_Dim_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstSD.rda")
+MFx_alongTime_Mal_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_cstSD_MORSE, profile = MFx_profile_Mal_cst)
+save(MFx_alongTime_Mal_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstSD.rda")
+MFx_alongTime_PRZ_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_cstSD_MORSE, profile = MFx_profile_PRZ_cst)
+save(MFx_alongTime_PRZ_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstSD.rda")
+
+MFx_alongTime_Car_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_cstIT_MORSE, profile = MFx_profile_Car_cst)
+save(MFx_alongTime_Car_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstIT.rda")
+MFx_alongTime_Cyp_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_cstIT_MORSE, profile = MFx_profile_Cyp_cst)
+save(MFx_alongTime_Cyp_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstIT.rda")
+MFx_alongTime_Dim_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_cstIT_MORSE, profile = MFx_profile_Dim_cst)
+save(MFx_alongTime_Dim_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstIT.rda")
+MFx_alongTime_Mal_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_cstIT_MORSE, profile = MFx_profile_Mal_cst)
+save(MFx_alongTime_Mal_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstIT.rda")
+MFx_alongTime_PRZ_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_cstIT_MORSE, profile = MFx_profile_PRZ_cst)
+save(MFx_alongTime_PRZ_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstIT.rda")
 
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstSD.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstSD.rda")
@@ -3284,27 +3289,27 @@ load(file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstIT.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstIT.rda")
 
-# MFx_alongTime_Car_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varA)
-# save(MFx_alongTime_Car_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_A.rda")
-# MFx_alongTime_Cyp_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varA)
-# save(MFx_alongTime_Cyp_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_A.rda")
-# MFx_alongTime_Dim_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varA)
-# save(MFx_alongTime_Dim_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_A.rda")
-# MFx_alongTime_Mal_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varA)
-# save(MFx_alongTime_Mal_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_A.rda")
-# MFx_alongTime_PRZ_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varA)
-# save(MFx_alongTime_PRZ_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_A.rda")
-# 
-# MFx_alongTime_Car_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varA)
-# save(MFx_alongTime_Car_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_A.rda")
-# MFx_alongTime_Cyp_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varA)
-# save(MFx_alongTime_Cyp_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_A.rda")
-# MFx_alongTime_Dim_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varA)
-# save(MFx_alongTime_Dim_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_A.rda")
-# MFx_alongTime_Mal_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varA)
-# save(MFx_alongTime_Mal_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_A.rda")
-# MFx_alongTime_PRZ_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varA)
-# save(MFx_alongTime_PRZ_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_A.rda")
+MFx_alongTime_Car_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varA)
+save(MFx_alongTime_Car_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_A.rda")
+MFx_alongTime_Cyp_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varA)
+save(MFx_alongTime_Cyp_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_A.rda")
+MFx_alongTime_Dim_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varA)
+save(MFx_alongTime_Dim_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_A.rda")
+MFx_alongTime_Mal_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varA)
+save(MFx_alongTime_Mal_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_A.rda")
+MFx_alongTime_PRZ_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varA)
+save(MFx_alongTime_PRZ_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_A.rda")
+
+MFx_alongTime_Car_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varA)
+save(MFx_alongTime_Car_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_A.rda")
+MFx_alongTime_Cyp_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varA)
+save(MFx_alongTime_Cyp_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_A.rda")
+MFx_alongTime_Dim_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varA)
+save(MFx_alongTime_Dim_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_A.rda")
+MFx_alongTime_Mal_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varA)
+save(MFx_alongTime_Mal_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_A.rda")
+MFx_alongTime_PRZ_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varA)
+save(MFx_alongTime_PRZ_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_A.rda")
 
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_A.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_A.rda")
@@ -3319,27 +3324,27 @@ load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_A.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_A.rda")
 
 
-# MFx_alongTime_Car_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varB)
-# save(MFx_alongTime_Car_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_B.rda")
-# MFx_alongTime_Cyp_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varB)
-# save(MFx_alongTime_Cyp_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_B.rda")
-# MFx_alongTime_Dim_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varB)
-# save(MFx_alongTime_Dim_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_B.rda")
-# MFx_alongTime_Mal_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varB)
-# save(MFx_alongTime_Mal_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_B.rda")
-# MFx_alongTime_PRZ_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varB)
-# save(MFx_alongTime_PRZ_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_B.rda")
-# 
-# MFx_alongTime_Car_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varB)
-# save(MFx_alongTime_Car_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_B.rda")
-# MFx_alongTime_Cyp_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varB)
-# save(MFx_alongTime_Cyp_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_B.rda")
-# MFx_alongTime_Dim_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varB)
-# save(MFx_alongTime_Dim_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_B.rda")
-# MFx_alongTime_Mal_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varB)
-# save(MFx_alongTime_Mal_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_B.rda")
-# MFx_alongTime_PRZ_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varB)
-# save(MFx_alongTime_PRZ_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_B.rda")
+MFx_alongTime_Car_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varB)
+save(MFx_alongTime_Car_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_B.rda")
+MFx_alongTime_Cyp_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varB)
+save(MFx_alongTime_Cyp_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_B.rda")
+MFx_alongTime_Dim_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varB)
+save(MFx_alongTime_Dim_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_B.rda")
+MFx_alongTime_Mal_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varB)
+save(MFx_alongTime_Mal_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_B.rda")
+MFx_alongTime_PRZ_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varB)
+save(MFx_alongTime_PRZ_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_B.rda")
+
+MFx_alongTime_Car_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varB)
+save(MFx_alongTime_Car_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_B.rda")
+MFx_alongTime_Cyp_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varB)
+save(MFx_alongTime_Cyp_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_B.rda")
+MFx_alongTime_Dim_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varB)
+save(MFx_alongTime_Dim_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_B.rda")
+MFx_alongTime_Mal_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varB)
+save(MFx_alongTime_Mal_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_B.rda")
+MFx_alongTime_PRZ_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varB)
+save(MFx_alongTime_PRZ_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_B.rda")
 
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_B.rda")
 load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_B.rda")
@@ -3381,3 +3386,819 @@ plot_MFx_alongTime(
 plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_PRZ_varSD_B, MFx_alongTime_IT = MFx_alongTime_PRZ_varIT_B, title = "MFx_varPRZB")
 ```
 
+
+# Goodness-Of-Fit
+
+## posterior_predict
+
+```{r}
+extract_MCMCparameters <- function(x){
+  
+   mcmcParam <- switch(x$model_type,
+                      SD =  c("kd_log10", "hb_log10", "z_log10", "kk_log10"),
+                      IT =  c("kd_log10", "hb_log10", "alpha_log10", "beta_log10"),
+                      PROPER =  c("kd_log10", "hb_log10", "kk_log10", "alpha_log10", "beta_log10"))
+  
+  mcmcEstim <- do.call("rbind", x$mcmc)
+  df_mcmcEstim <- as_data_frame(mcmcEstim) %>%
+    select(mcmcParam)
+    
+  return(df_mcmcEstim)
+}
+
+### SD --------------------------------------------------------------------------------
+# ----- cstTOTcst
+# predict_Car_SD_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_cstSD_MORSE, newdata = fit_Car_cstSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Car_SD_cst_ptwsMORSE, file = "predict_Car_SD_cst_ptwsMORSE.rda")
+# predict_Cyp_SD_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_cstSD_MORSE, newdata = fit_Cyp_cstSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Cyp_SD_cst_ptwsMORSE, file = "predict_Cyp_SD_cst_ptwsMORSE.rda")
+# predict_Dim_SD_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_cstSD_MORSE,newdata = fit_Dim_cstSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Dim_SD_cst_ptwsMORSE, file = "predict_Dim_SD_cst_ptwsMORSE.rda")
+# predict_Mal_SD_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_cstSD_MORSE, newdata = fit_Mal_cstSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Mal_SD_cst_ptwsMORSE, file = "predict_Mal_SD_cst_ptwsMORSE.rda")
+# predict_PRZ_SD_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_cstSD_MORSE, newdata = fit_PRZ_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_PRZ_SD_cst_ptwsMORSE, file = "predict_PRZ_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Car_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_SD_cst_ptwsMORSE.rda")
+
+# ----- cstTOvar
+# predict_Car_SD_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_cstSD_MORSE, newdata = fit_Car_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Car_SD_cstTOvar_ptwsMORSE, file = "predict_Car_SD_cstTOvar_ptwsMORSE.rda")
+# predict_Cyp_SD_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_cstSD_MORSE, newdata = fit_Cyp_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Cyp_SD_cstTOvar_ptwsMORSE, file = "predict_Cyp_SD_cstTOvar_ptwsMORSE.rda")
+# predict_Dim_SD_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_cstSD_MORSE, newdata = fit_Dim_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Dim_SD_cstTOvar_ptwsMORSE, file = "predict_Dim_SD_cstTOvar_ptwsMORSE.rda")
+# predict_Mal_SD_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_cstSD_MORSE, newdata = fit_Mal_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Mal_SD_cstTOvar_ptwsMORSE, file = "predict_Mal_SD_cstTOvar_ptwsMORSE.rda")
+# predict_PRZ_SD_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_cstSD_MORSE, newdata = fit_PRZ_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_PRZ_SD_cstTOvar_ptwsMORSE, file = "predict_PRZ_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Car_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_SD_cstTOvar_ptwsMORSE.rda")
+
+
+# ----- varTOcst
+# predict_Car_SD_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_varSD_MORSE, newdata = fit_Car_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Car_SD_varTOcst_ptwsMORSE, file = "predict_Car_SD_varTOcst_ptwsMORSE.rda")
+# predict_Cyp_SD_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_varSD_MORSE, newdata = fit_Cyp_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Cyp_SD_varTOcst_ptwsMORSE, file = "predict_Cyp_SD_varTOcst_ptwsMORSE.rda")
+# predict_Dim_SD_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_varSD_MORSE, newdata = fit_Dim_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Dim_SD_varTOcst_ptwsMORSE, file = "predict_Dim_SD_varTOcst_ptwsMORSE.rda")
+# predict_Mal_SD_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_varSD_MORSE, newdata = fit_Mal_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Mal_SD_varTOcst_ptwsMORSE, file = "predict_Mal_SD_varTOcst_ptwsMORSE.rda")
+# predict_PRZ_SD_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_varSD_MORSE, newdata = fit_PRZ_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_PRZ_SD_varTOcst_ptwsMORSE, file = "predict_PRZ_SD_varTOcst_ptwsMORSE.rda")
+
+load(file = "DATA_SIMULATION/predict/predict_Car_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_SD_varTOcst_ptwsMORSE.rda")
+
+# ----- varTOvar
+# predict_Car_SD_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_varSD_MORSE, newdata = fit_Car_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Car_SD_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Car_SD_var_ptwsMORSE.rda")
+# predict_Cyp_SD_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_varSD_MORSE, newdata = fit_Cyp_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Cyp_SD_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Cyp_SD_var_ptwsMORSE.rda")
+# predict_Dim_SD_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_varSD_MORSE, newdata = fit_Dim_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Dim_SD_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Dim_SD_var_ptwsMORSE.rda")
+# predict_Mal_SD_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_varSD_MORSE, newdata = fit_Mal_varSD_MORSE$original.data, mc.cores = 4)
+# save(predict_Mal_SD_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Mal_SD_var_ptwsMORSE.rda")
+# predict_PRZ_SD_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_varSD_MORSE, newdata = fit_PRZ_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+#  save(predict_PRZ_SD_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_PRZ_SD_var_ptwsMORSE.rda")
+
+load(file = "DATA_SIMULATION/predict/predict_Car_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_SD_var_ptwsMORSE.rda")
+
+
+### IT --------------------------------------------------------------------------------
+# ----- cstTOTcst
+# predict_Car_IT_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_cstIT_MORSE, newdata = fit_Car_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Car_IT_cst_ptwsMORSE, file = "predict_Car_IT_cst_ptwsMORSE.rda")
+# predict_Cyp_IT_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_cstIT_MORSE, newdata = fit_Cyp_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Cyp_IT_cst_ptwsMORSE, file = "predict_Cyp_IT_cst_ptwsMORSE.rda")
+# predict_Dim_IT_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_cstIT_MORSE,newdata = fit_Dim_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Dim_IT_cst_ptwsMORSE, file = "predict_Dim_IT_cst_ptwsMORSE.rda")
+# predict_Mal_IT_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_cstIT_MORSE, newdata = fit_Mal_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Mal_IT_cst_ptwsMORSE, file = "predict_Mal_IT_cst_ptwsMORSE.rda")
+# predict_PRZ_IT_cst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_cstIT_MORSE, newdata = fit_PRZ_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_PRZ_IT_cst_ptwsMORSE, file = "predict_PRZ_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Car_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_IT_cst_ptwsMORSE.rda")
+
+# ----- cstTOvar
+# predict_Car_IT_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_cstIT_MORSE, newdata = fit_Car_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Car_IT_cstTOvar_ptwsMORSE, file = "predict_Car_IT_cstTOvar_ptwsMORSE.rda")
+# predict_Cyp_IT_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_cstIT_MORSE, newdata = fit_Cyp_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Cyp_IT_cstTOvar_ptwsMORSE, file = "predict_Cyp_IT_cstTOvar_ptwsMORSE.rda")
+# predict_Dim_IT_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_cstIT_MORSE, newdata = fit_Dim_varIT_MORSE$original.data, mc.cores = 4)
+# save(predict_Dim_IT_cstTOvar_ptwsMORSE, file = "predict_Dim_IT_cstTOvar_ptwsMORSE.rda")
+# predict_Mal_IT_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_cstIT_MORSE, newdata = fit_Mal_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Mal_IT_cstTOvar_ptwsMORSE, file = "predict_Mal_IT_cstTOvar_ptwsMORSE.rda")
+# predict_PRZ_IT_cstTOvar_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_cstIT_MORSE, newdata = fit_PRZ_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_PRZ_IT_cstTOvar_ptwsMORSE, file = "predict_PRZ_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Car_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_IT_cstTOvar_ptwsMORSE.rda")
+
+
+# ----- varTOcst
+# predict_Car_IT_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_varIT_MORSE, newdata = fit_Car_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Car_IT_varTOcst_ptwsMORSE, file = "predict_Car_IT_varTOcst_ptwsMORSE.rda")
+# predict_Cyp_IT_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_varIT_MORSE, newdata = fit_Cyp_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Cyp_IT_varTOcst_ptwsMORSE, file = "predict_Cyp_IT_varTOcst_ptwsMORSE.rda")
+# predict_Dim_IT_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_varIT_MORSE, newdata = fit_Dim_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Dim_IT_varTOcst_ptwsMORSE, file = "predict_Dim_IT_varTOcst_ptwsMORSE.rda")
+# predict_Mal_IT_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_varIT_MORSE, newdata = fit_Mal_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Mal_IT_varTOcst_ptwsMORSE, file = "predict_Mal_IT_varTOcst_ptwsMORSE.rda")
+# predict_PRZ_IT_varTOcst_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_varIT_MORSE, newdata = fit_PRZ_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_PRZ_IT_varTOcst_ptwsMORSE, file = "predict_PRZ_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Car_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_IT_varTOcst_ptwsMORSE.rda")
+
+# ----- varTOvar
+# predict_Car_IT_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Car_varIT_MORSE, newdata = fit_Car_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Car_IT_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Car_IT_var_ptwsMORSE.rda")
+# predict_Cyp_IT_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Cyp_varIT_MORSE, newdata = fit_Cyp_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Cyp_IT_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Cyp_IT_var_ptwsMORSE.rda")
+# predict_Dim_IT_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Dim_varIT_MORSE, newdata = fit_Dim_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Dim_IT_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Dim_IT_var_ptwsMORSE.rda")
+# predict_Mal_IT_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_Mal_varIT_MORSE, newdata = fit_Mal_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_Mal_IT_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_Mal_IT_var_ptwsMORSE.rda")
+# predict_PRZ_IT_var_ptwsMORSE <- posterior_predict.stanTKTD(x = fit_PRZ_varIT_MORSE, newdata = fit_PRZ_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+# save(predict_PRZ_IT_var_ptwsMORSE, file = "DATA_SIMULATION/predict/predict_PRZ_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Car_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Cyp_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Dim_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_Mal_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/predict/predict_PRZ_IT_var_ptwsMORSE.rda")
+```
+
+
+## PPC percentage
+
+```{r}
+filter_Nsurv = function(x){
+    x_data = dplyr::filter(x$original.data, !is.na(Nsurv))
+    return(x_data$Nsurv)
+}
+########################################### SD
+# ------------- cst
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_cstSD_MORSE), yrep = predict_Car_SD_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_cstSD_MORSE), yrep = predict_Cyp_SD_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_cstSD_MORSE), yrep = predict_Dim_SD_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_cstSD_MORSE), yrep = predict_Mal_SD_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_cstSD_MORSE), yrep = predict_PRZ_SD_cst_ptwsMORSE)
+
+# ------------- cstTOvar
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_varSD_MORSE), yrep = predict_Car_SD_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_varSD_MORSE), yrep = predict_Cyp_SD_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_varSD_MORSE), yrep = predict_Dim_SD_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_varSD_MORSE), yrep = predict_Mal_SD_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_varSD_MORSE), yrep = predict_PRZ_SD_cstTOvar_ptwsMORSE)
+
+# ------------- varTOcst
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_cstSD_MORSE), yrep = predict_Car_SD_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_cstSD_MORSE), yrep = predict_Cyp_SD_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_cstSD_MORSE), yrep = predict_Dim_SD_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_cstSD_MORSE), yrep = predict_Mal_SD_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_cstSD_MORSE), yrep = predict_PRZ_SD_varTOcst_ptwsMORSE)
+
+# ----------- var
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_varSD_MORSE), yrep = predict_Car_SD_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_varSD_MORSE), yrep = predict_Cyp_SD_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_varSD_MORSE), yrep = predict_Dim_SD_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_varSD_MORSE), yrep = predict_Mal_SD_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_varSD_MORSE), yrep = predict_PRZ_SD_var_ptwsMORSE)
+
+
+########################################### IT
+# ------------- cst
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_cstIT_MORSE), yrep = predict_Car_IT_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_cstIT_MORSE), yrep = predict_Cyp_IT_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_cstIT_MORSE), yrep = predict_Dim_IT_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_cstIT_MORSE), yrep = predict_Mal_IT_cst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_cstIT_MORSE), yrep = predict_PRZ_IT_cst_ptwsMORSE)
+
+# ------------- cstTOvar
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_varIT_MORSE), yrep = predict_Car_IT_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_varIT_MORSE), yrep = predict_Cyp_IT_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_varIT_MORSE), yrep = predict_Dim_IT_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_varIT_MORSE), yrep = predict_Mal_IT_cstTOvar_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_varIT_MORSE), yrep = predict_PRZ_IT_cstTOvar_ptwsMORSE)
+
+# ------------- varTOcst
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_cstIT_MORSE), yrep = predict_Car_IT_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_cstIT_MORSE), yrep = predict_Cyp_IT_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_cstIT_MORSE), yrep = predict_Dim_IT_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_cstIT_MORSE), yrep = predict_Mal_IT_varTOcst_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_cstIT_MORSE), yrep = predict_PRZ_IT_varTOcst_ptwsMORSE)
+
+# ----------- var
+ppc_percent_overlap(y = filter_Nsurv(fit_Car_varIT_MORSE), yrep = predict_Car_IT_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Cyp_varIT_MORSE), yrep = predict_Cyp_IT_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Dim_varIT_MORSE), yrep = predict_Dim_IT_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_Mal_varIT_MORSE), yrep = predict_Mal_IT_var_ptwsMORSE)
+ppc_percent_overlap(y = filter_Nsurv(fit_PRZ_varIT_MORSE), yrep = predict_PRZ_IT_var_ptwsMORSE)
+```
+
+
+## Log likelihood
+
+```{r}
+### SD --------------------------------------------------------------------------------
+# ----- cstTOTcst
+logLik_Car_SD_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_cstSD_MORSE, newdata = fit_Car_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_SD_cst_ptwsMORSE, file = "logLik_Car_SD_cst_ptwsMORSE.rda")
+logLik_Cyp_SD_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_cstSD_MORSE, newdata = fit_Cyp_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_SD_cst_ptwsMORSE, file = "logLik_Cyp_SD_cst_ptwsMORSE.rda")
+logLik_Dim_SD_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_cstSD_MORSE,newdata = fit_Dim_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_SD_cst_ptwsMORSE, file = "logLik_Dim_SD_cst_ptwsMORSE.rda")
+logLik_Mal_SD_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_cstSD_MORSE, newdata = fit_Mal_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_SD_cst_ptwsMORSE, file = "logLik_Mal_SD_cst_ptwsMORSE.rda")
+logLik_PRZ_SD_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_cstSD_MORSE, newdata = fit_PRZ_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_SD_cst_ptwsMORSE, file = "logLik_PRZ_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_SD_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_SD_cst_ptwsMORSE.rda")
+
+# ----- cstTOvar
+logLik_Car_SD_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_cstSD_MORSE, newdata = fit_Car_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_SD_cstTOvar_ptwsMORSE, file = "logLik_Car_SD_cstTOvar_ptwsMORSE.rda")
+logLik_Cyp_SD_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_cstSD_MORSE, newdata = fit_Cyp_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_SD_cstTOvar_ptwsMORSE, file = "logLik_Cyp_SD_cstTOvar_ptwsMORSE.rda")
+logLik_Dim_SD_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_cstSD_MORSE, newdata = fit_Dim_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_SD_cstTOvar_ptwsMORSE, file = "logLik_Dim_SD_cstTOvar_ptwsMORSE.rda")
+logLik_Mal_SD_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_cstSD_MORSE, newdata = fit_Mal_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_SD_cstTOvar_ptwsMORSE, file = "logLik_Mal_SD_cstTOvar_ptwsMORSE.rda")
+logLik_PRZ_SD_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_cstSD_MORSE, newdata = fit_PRZ_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_SD_cstTOvar_ptwsMORSE, file = "logLik_PRZ_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_SD_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_SD_cstTOvar_ptwsMORSE.rda")
+
+
+# ----- varTOcst
+logLik_Car_SD_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_varSD_MORSE, newdata = fit_Car_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_SD_varTOcst_ptwsMORSE, file = "logLik_Car_SD_varTOcst_ptwsMORSE.rda")
+logLik_Cyp_SD_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_varSD_MORSE, newdata = fit_Cyp_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_SD_varTOcst_ptwsMORSE, file = "logLik_Cyp_SD_varTOcst_ptwsMORSE.rda")
+logLik_Dim_SD_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_varSD_MORSE, newdata = fit_Dim_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_SD_varTOcst_ptwsMORSE, file = "logLik_Dim_SD_varTOcst_ptwsMORSE.rda")
+logLik_Mal_SD_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_varSD_MORSE, newdata = fit_Mal_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_SD_varTOcst_ptwsMORSE, file = "logLik_Mal_SD_varTOcst_ptwsMORSE.rda")
+logLik_PRZ_SD_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_varSD_MORSE, newdata = fit_PRZ_cstSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_SD_varTOcst_ptwsMORSE, file = "logLik_PRZ_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_SD_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_SD_varTOcst_ptwsMORSE.rda")
+
+# ----- varTOvar
+logLik_Car_SD_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_varSD_MORSE, newdata = fit_Car_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_SD_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Car_SD_var_ptwsMORSE.rda")
+logLik_Cyp_SD_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_varSD_MORSE, newdata = fit_Cyp_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_SD_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Cyp_SD_var_ptwsMORSE.rda")
+logLik_Dim_SD_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_varSD_MORSE, newdata = fit_Dim_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_SD_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Dim_SD_var_ptwsMORSE.rda")
+logLik_Mal_SD_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_varSD_MORSE, newdata = fit_Mal_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_SD_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Mal_SD_var_ptwsMORSE.rda")
+logLik_PRZ_SD_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_varSD_MORSE, newdata = fit_PRZ_varSD_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_SD_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_PRZ_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_SD_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_SD_var_ptwsMORSE.rda")
+
+### IT --------------------------------------------------------------------------------
+# ----- cstTOTcst
+logLik_Car_IT_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_cstIT_MORSE, newdata = fit_Car_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_IT_cst_ptwsMORSE, file = "logLik_Car_IT_cst_ptwsMORSE.rda")
+logLik_Cyp_IT_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_cstIT_MORSE, newdata = fit_Cyp_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_IT_cst_ptwsMORSE, file = "logLik_Cyp_IT_cst_ptwsMORSE.rda")
+logLik_Dim_IT_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_cstIT_MORSE,newdata = fit_Dim_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_IT_cst_ptwsMORSE, file = "logLik_Dim_IT_cst_ptwsMORSE.rda")
+logLik_Mal_IT_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_cstIT_MORSE, newdata = fit_Mal_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_IT_cst_ptwsMORSE, file = "logLik_Mal_IT_cst_ptwsMORSE.rda")
+logLik_PRZ_IT_cst_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_cstIT_MORSE, newdata = fit_PRZ_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_IT_cst_ptwsMORSE, file = "logLik_PRZ_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_IT_cst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_IT_cst_ptwsMORSE.rda")
+
+# ----- cstTOvar
+logLik_Car_IT_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_cstIT_MORSE, newdata = fit_Car_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_IT_cstTOvar_ptwsMORSE, file = "logLik_Car_IT_cstTOvar_ptwsMORSE.rda")
+logLik_Cyp_IT_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_cstIT_MORSE, newdata = fit_Cyp_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_IT_cstTOvar_ptwsMORSE, file = "logLik_Cyp_IT_cstTOvar_ptwsMORSE.rda")
+logLik_Dim_IT_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_cstIT_MORSE, newdata = fit_Dim_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_IT_cstTOvar_ptwsMORSE, file = "logLik_Dim_IT_cstTOvar_ptwsMORSE.rda")
+logLik_Mal_IT_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_cstIT_MORSE, newdata = fit_Mal_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_IT_cstTOvar_ptwsMORSE, file = "logLik_Mal_IT_cstTOvar_ptwsMORSE.rda")
+logLik_PRZ_IT_cstTOvar_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_cstIT_MORSE, newdata = fit_PRZ_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_IT_cstTOvar_ptwsMORSE, file = "logLik_PRZ_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_IT_cstTOvar_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_IT_cstTOvar_ptwsMORSE.rda")
+
+
+# ----- varTOcst
+logLik_Car_IT_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_varIT_MORSE, newdata = fit_Car_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_IT_varTOcst_ptwsMORSE, file = "logLik_Car_IT_varTOcst_ptwsMORSE.rda")
+logLik_Cyp_IT_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_varIT_MORSE, newdata = fit_Cyp_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_IT_varTOcst_ptwsMORSE, file = "logLik_Cyp_IT_varTOcst_ptwsMORSE.rda")
+logLik_Dim_IT_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_varIT_MORSE, newdata = fit_Dim_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_IT_varTOcst_ptwsMORSE, file = "logLik_Dim_IT_varTOcst_ptwsMORSE.rda")
+logLik_Mal_IT_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_varIT_MORSE, newdata = fit_Mal_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_IT_varTOcst_ptwsMORSE, file = "logLik_Mal_IT_varTOcst_ptwsMORSE.rda")
+logLik_PRZ_IT_varTOcst_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_varIT_MORSE, newdata = fit_PRZ_cstIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_IT_varTOcst_ptwsMORSE, file = "logLik_PRZ_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_IT_varTOcst_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_IT_varTOcst_ptwsMORSE.rda")
+
+# ----- varTOvar
+logLik_Car_IT_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Car_varIT_MORSE, newdata = fit_Car_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Car_IT_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Car_IT_var_ptwsMORSE.rda")
+logLik_Cyp_IT_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Cyp_varIT_MORSE, newdata = fit_Cyp_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Cyp_IT_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Cyp_IT_var_ptwsMORSE.rda")
+logLik_Dim_IT_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Dim_varIT_MORSE, newdata = fit_Dim_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Dim_IT_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Dim_IT_var_ptwsMORSE.rda")
+logLik_Mal_IT_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_Mal_varIT_MORSE, newdata = fit_Mal_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_Mal_IT_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_Mal_IT_var_ptwsMORSE.rda")
+logLik_PRZ_IT_var_ptwsMORSE <- log_lik.stanTKTD(x = fit_PRZ_varIT_MORSE, newdata = fit_PRZ_varIT_MORSE$original.data, mc.cores = 4, draws = 4000)
+save(logLik_PRZ_IT_var_ptwsMORSE, file = "DATA_SIMULATION/logLik/logLik_PRZ_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Car_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Cyp_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Dim_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_Mal_IT_var_ptwsMORSE.rda")
+load(file = "DATA_SIMULATION/logLik/logLik_PRZ_IT_var_ptwsMORSE.rda")
+```
+
+## WAIC
+
+```{r}
+waic_measure <- function(x){
+  loo::waic(na.omit(x))$waic
+}
+############################
+
+########################################### SD
+# ------------- cst
+waic_measure(logLik_Car_SD_cst_ptwsMORSE)
+waic_measure(logLik_Cyp_SD_cst_ptwsMORSE)
+waic_measure(logLik_Dim_SD_cst_ptwsMORSE)
+waic_measure(logLik_Mal_SD_cst_ptwsMORSE)
+waic_measure(logLik_PRZ_SD_cst_ptwsMORSE)
+
+# ------------- cstTOvar
+waic_measure(logLik_Car_SD_cstTOvar_ptwsMORSE)
+waic_measure(logLik_Cyp_SD_cstTOvar_ptwsMORSE)
+waic_measure(logLik_Dim_SD_cstTOvar_ptwsMORSE)
+waic_measure(logLik_Mal_SD_cstTOvar_ptwsMORSE)
+waic_measure(logLik_PRZ_SD_cstTOvar_ptwsMORSE)
+
+# ------------- varTOcst
+waic_measure(logLik_Car_SD_varTOcst_ptwsMORSE)
+waic_measure(logLik_Cyp_SD_varTOcst_ptwsMORSE)
+waic_measure(logLik_Dim_SD_varTOcst_ptwsMORSE)
+waic_measure(logLik_Mal_SD_varTOcst_ptwsMORSE)
+waic_measure(logLik_PRZ_SD_varTOcst_ptwsMORSE)
+
+# ----------- var
+waic_measure(logLik_Car_SD_var_ptwsMORSE)
+waic_measure(logLik_Cyp_SD_var_ptwsMORSE)
+waic_measure(logLik_Dim_SD_var_ptwsMORSE)
+waic_measure(logLik_Mal_SD_var_ptwsMORSE)
+waic_measure(logLik_PRZ_SD_var_ptwsMORSE)
+
+
+########################################### IT
+# ------------- cst
+waic_measure(logLik_Car_IT_cst_ptwsMORSE)
+waic_measure(logLik_Cyp_IT_cst_ptwsMORSE)
+waic_measure(logLik_Dim_IT_cst_ptwsMORSE)
+waic_measure(logLik_Mal_IT_cst_ptwsMORSE)
+waic_measure(logLik_PRZ_IT_cst_ptwsMORSE)
+
+# ------------- cstTOvar
+waic_measure(logLik_Car_IT_cstTOvar_ptwsMORSE)
+waic_measure(logLik_Cyp_IT_cstTOvar_ptwsMORSE)
+waic_measure(logLik_Dim_IT_cstTOvar_ptwsMORSE)
+waic_measure(logLik_Mal_IT_cstTOvar_ptwsMORSE)
+waic_measure(logLik_PRZ_IT_cstTOvar_ptwsMORSE)
+
+# ------------- varTOcst
+waic_measure(logLik_Car_IT_varTOcst_ptwsMORSE)
+waic_measure(logLik_Cyp_IT_varTOcst_ptwsMORSE)
+waic_measure(logLik_Dim_IT_varTOcst_ptwsMORSE)
+waic_measure(logLik_Mal_IT_varTOcst_ptwsMORSE)
+waic_measure(logLik_PRZ_IT_varTOcst_ptwsMORSE)
+
+# ----------- var
+waic_measure(logLik_Car_IT_var_ptwsMORSE)
+waic_measure(logLik_Cyp_IT_var_ptwsMORSE)
+waic_measure(logLik_Dim_IT_var_ptwsMORSE)
+waic_measure(logLik_Mal_IT_var_ptwsMORSE)
+waic_measure(logLik_PRZ_IT_var_ptwsMORSE)
+```
+
+## LOO
+
+```{r}
+loo_measure <- function(x){
+  loo::loo(na.omit(x))$loo
+}
+############################
+
+########################################### SD
+# ------------- cst
+loo_measure(logLik_Car_SD_cst_ptwsMORSE)
+loo_measure(logLik_Cyp_SD_cst_ptwsMORSE)
+loo_measure(logLik_Dim_SD_cst_ptwsMORSE)
+loo_measure(logLik_Mal_SD_cst_ptwsMORSE)
+loo_measure(logLik_PRZ_SD_cst_ptwsMORSE)
+
+# ------------- cstTOvar
+loo_measure(logLik_Car_SD_cstTOvar_ptwsMORSE)
+loo_measure(logLik_Cyp_SD_cstTOvar_ptwsMORSE)
+loo_measure(logLik_Dim_SD_cstTOvar_ptwsMORSE)
+loo_measure(logLik_Mal_SD_cstTOvar_ptwsMORSE)
+loo_measure(logLik_PRZ_SD_cstTOvar_ptwsMORSE)
+
+# ------------- varTOcst
+loo_measure(logLik_Car_SD_varTOcst_ptwsMORSE)
+loo_measure(logLik_Cyp_SD_varTOcst_ptwsMORSE)
+loo_measure(logLik_Dim_SD_varTOcst_ptwsMORSE)
+loo_measure(logLik_Mal_SD_varTOcst_ptwsMORSE)
+loo_measure(logLik_PRZ_SD_varTOcst_ptwsMORSE)
+
+# ----------- var
+loo_measure(logLik_Car_SD_var_ptwsMORSE)
+loo_measure(logLik_Cyp_SD_var_ptwsMORSE)
+loo_measure(logLik_Dim_SD_var_ptwsMORSE)
+loo_measure(logLik_Mal_SD_var_ptwsMORSE)
+loo_measure(logLik_PRZ_SD_var_ptwsMORSE)
+
+
+########################################### IT
+# ------------- cst
+loo_measure(logLik_Car_IT_cst_ptwsMORSE)
+loo_measure(logLik_Cyp_IT_cst_ptwsMORSE)
+loo_measure(logLik_Dim_IT_cst_ptwsMORSE)
+loo_measure(logLik_Mal_IT_cst_ptwsMORSE)
+loo_measure(logLik_PRZ_IT_cst_ptwsMORSE)
+
+# ------------- cstTOvar
+loo_measure(logLik_Car_IT_cstTOvar_ptwsMORSE)
+loo_measure(logLik_Cyp_IT_cstTOvar_ptwsMORSE)
+loo_measure(logLik_Dim_IT_cstTOvar_ptwsMORSE)
+loo_measure(logLik_Mal_IT_cstTOvar_ptwsMORSE)
+loo_measure(logLik_PRZ_IT_cstTOvar_ptwsMORSE)
+
+# ------------- varTOcst
+loo_measure(logLik_Car_IT_varTOcst_ptwsMORSE)
+loo_measure(logLik_Cyp_IT_varTOcst_ptwsMORSE)
+loo_measure(logLik_Dim_IT_varTOcst_ptwsMORSE)
+loo_measure(logLik_Mal_IT_varTOcst_ptwsMORSE)
+loo_measure(logLik_PRZ_IT_varTOcst_ptwsMORSE)
+
+# ----------- var
+loo_measure(logLik_Car_IT_var_ptwsMORSE)
+loo_measure(logLik_Cyp_IT_var_ptwsMORSE)
+loo_measure(logLik_Dim_IT_var_ptwsMORSE)
+loo_measure(logLik_Mal_IT_var_ptwsMORSE)
+loo_measure(logLik_PRZ_IT_var_ptwsMORSE)
+```
+
+
+
+## Calibration
+
+### Log-Likelihood
+
+
+```{r}
+# ----------------------- Calibration : cst - cst
+# --- Car
+LogLik_Car_cstIT_all8TS <- log_lik(x = fit_Car_cstIT_MORSE, newdata = fit_Car_cstIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Car_cstSD_all8TS <- log_lik(x = fit_Car_cstSD_MORSE, newdata = fit_Car_cstSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Cyp
+LogLik_Cyp_cstIT_all8TS <- log_lik(x = fit_Cyp_cstIT_MORSE, newdata = fit_Cyp_cstIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Cyp_cstSD_all8TS <- log_lik(x = fit_Cyp_cstSD_MORSE, newdata = fit_Cyp_cstSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Dim
+LogLik_Dim_cstIT_all8TS <- log_lik(x = fit_Dim_cstIT_MORSE, newdata = fit_Dim_cstIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Dim_cstSD_all8TS <- log_lik(x = fit_Dim_cstSD_MORSE, newdata = fit_Dim_cstSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Mal
+LogLik_Mal_cstIT_all8TS <- log_lik(x = fit_Mal_cstIT_MORSE, newdata = fit_Mal_cstIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Mal_cstSD_all8TS <- log_lik(x = fit_Mal_cstSD_MORSE, newdata = fit_Mal_cstSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- PRZ
+LogLik_PRZ_cstIT_all8TS <- log_lik(x = fit_PRZ_cstIT_MORSE, newdata = fit_PRZ_cstIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_PRZ_cstSD_all8TS <- log_lik(x = fit_PRZ_cstSD_MORSE, newdata = fit_PRZ_cstSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+
+
+# ----------------------- Calibration : var - var
+# --- Car
+LogLik_Car_varIT_all8TS <- log_lik(x = fit_Car_varIT_MORSE, newdata = fit_Car_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Car_varSD_all8TS <- log_lik(x = fit_Car_varSD_MORSE, newdata = fit_Car_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Cyp
+LogLik_Cyp_varIT_all8TS <- log_lik(x = fit_Cyp_varIT_MORSE, newdata = fit_Cyp_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Cyp_varSD_all8TS <- log_lik(x = fit_Cyp_varSD_MORSE, newdata = fit_Cyp_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Dim
+LogLik_Dim_varIT_all8TS <- log_lik(x = fit_Dim_varIT_MORSE, newdata = fit_Dim_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Dim_varSD_all8TS <- log_lik(x = fit_Dim_varSD_MORSE, newdata = fit_Dim_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Mal
+LogLik_Mal_varIT_all8TS <- log_lik(x = fit_Mal_varIT_MORSE, newdata = fit_Mal_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Mal_varSD_all8TS <- log_lik(x = fit_Mal_varSD_MORSE, newdata = fit_Mal_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- PRZ
+LogLik_PRZ_varIT_all8TS <- log_lik(x = fit_PRZ_varIT_MORSE, newdata = fit_PRZ_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_PRZ_varSD_all8TS <- log_lik(x = fit_PRZ_varSD_MORSE, newdata = fit_PRZ_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+```
+
+### WAIC
+
+```{r}
+waic_measure <- function(x){
+  loo::waic(na.omit(x))$waic
+}
+
+############################
+# --- Car
+WAIC_Car_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Car_cstIT_all8TS))
+WAIC_Car_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Car_cstSD_all8TS) )
+# --- Cyp
+WAIC_Cyp_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Cyp_cstIT_all8TS))
+WAIC_Cyp_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Cyp_cstSD_all8TS) )
+# --- Dim
+WAIC_Dim_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Dim_cstIT_all8TS))
+WAIC_Dim_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Dim_cstSD_all8TS) )
+# --- Mal
+WAIC_Mal_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Mal_cstIT_all8TS))
+WAIC_Mal_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Mal_cstSD_all8TS) )
+# --- PRZ
+WAIC_PRZ_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_PRZ_cstIT_all8TS))
+WAIC_PRZ_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_PRZ_cstSD_all8TS) )
+```
+
+### LOO-CV
+
+```{r}
+LOO_measure <- function(x){
+  loo::loo(na.omit(x))$loo
+}
+############################
+# --- Car
+LOO_Car_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Car_cstIT_all8TS))
+LOO_Car_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Car_cstSD_all8TS) )
+# --- Cyp
+LOO_Cyp_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Cyp_cstIT_all8TS))
+LOO_Cyp_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Cyp_cstSD_all8TS) )
+# --- Dim
+LOO_Dim_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Dim_cstIT_all8TS))
+LOO_Dim_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Dim_cstSD_all8TS) )
+# --- Mal
+LOO_Mal_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Mal_cstIT_all8TS))
+LOO_Mal_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Mal_cstSD_all8TS) )
+# --- PRZ
+LOO_PRZ_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_PRZ_cstIT_all8TS))
+LOO_PRZ_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_PRZ_cstSD_all8TS) )
+
+```
+
+
+## Validation
+
+```{r}
+# ----------------------- Validation : cst - var
+# --- Car
+LogLik_Car_cstIT_all8TS <- log_lik(x = fit_Car_cstIT_MORSE, newdata = fit_Car_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Car_cstSD_all8TS <- log_lik(x = fit_Car_cstSD_MORSE, newdata = fit_Car_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Cyp
+LogLik_Cyp_cstIT_all8TS <- log_lik(x = fit_Cyp_cstIT_MORSE, newdata = fit_Cyp_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Cyp_cstSD_all8TS <- log_lik(x = fit_Cyp_cstSD_MORSE, newdata = fit_Cyp_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Dim
+LogLik_Dim_cstIT_all8TS <- log_lik(x = fit_Dim_cstIT_MORSE, newdata = fit_Dim_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Dim_cstSD_all8TS <- log_lik(x = fit_Dim_cstSD_MORSE, newdata = fit_Dim_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Mal
+LogLik_Mal_cstIT_all8TS <- log_lik(x = fit_Mal_cstIT_MORSE, newdata = fit_Mal_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Mal_cstSD_all8TS <- log_lik(x = fit_Mal_cstSD_MORSE, newdata = fit_Mal_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- PRZ
+LogLik_PRZ_cstIT_all8TS <- log_lik(x = fit_PRZ_cstIT_MORSE, newdata = fit_PRZ_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_PRZ_cstSD_all8TS <- log_lik(x = fit_PRZ_cstSD_MORSE, newdata = fit_PRZ_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+
+
+# ----------------------- Validation : var - cst
+# --- Car
+LogLik_Car_varIT_all8TS <- log_lik(x = fit_Car_cstIT_MORSE, newdata = fit_Car_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Car_varSD_all8TS <- log_lik(x = fit_Car_cstSD_MORSE, newdata = fit_Car_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Cyp
+LogLik_Cyp_varIT_all8TS <- log_lik(x = fit_Cyp_cstIT_MORSE, newdata = fit_Cyp_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Cyp_varSD_all8TS <- log_lik(x = fit_Cyp_cstSD_MORSE, newdata = fit_Cyp_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Dim
+LogLik_Dim_varIT_all8TS <- log_lik(x = fit_Dim_cstIT_MORSE, newdata = fit_Dim_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Dim_varSD_all8TS <- log_lik(x = fit_Dim_cstSD_MORSE, newdata = fit_Dim_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- Mal
+LogLik_Mal_varIT_all8TS <- log_lik(x = fit_Mal_cstIT_MORSE, newdata = fit_Mal_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_Mal_varSD_all8TS <- log_lik(x = fit_Mal_cstSD_MORSE, newdata = fit_Mal_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+# --- PRZ
+LogLik_PRZ_varIT_all8TS <- log_lik(x = fit_PRZ_cstIT_MORSE, newdata = fit_PRZ_varIT_MORSE$original.data, mc.cores = 4, draws = 1000)
+LogLik_PRZ_varSD_all8TS <- log_lik(x = fit_PRZ_cstSD_MORSE, newdata = fit_PRZ_varSD_MORSE$original.data, mc.cores = 4, draws = 1000)
+```
+
+### WAIC
+
+```{r}
+waic_measure <- function(x){
+  loo::waic(na.omit(x))$waic
+}
+
+############################
+# --- Car
+WAIC_Car_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Car_cstIT_all8TS))
+WAIC_Car_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Car_cstSD_all8TS) )
+# --- Cyp
+WAIC_Cyp_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Cyp_cstIT_all8TS))
+WAIC_Cyp_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Cyp_cstSD_all8TS) )
+# --- Dim
+WAIC_Dim_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Dim_cstIT_all8TS))
+WAIC_Dim_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Dim_cstSD_all8TS) )
+# --- Mal
+WAIC_Mal_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Mal_cstIT_all8TS))
+WAIC_Mal_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_Mal_cstSD_all8TS) )
+# --- PRZ
+WAIC_PRZ_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_PRZ_cstIT_all8TS))
+WAIC_PRZ_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    WAIC = waic_measure(LogLik_PRZ_cstSD_all8TS) )
+```
+
+### LOO-CV
+
+```{r}
+LOO_measure <- function(x){
+  loo::loo(na.omit(x))$loo
+}
+############################
+# --- Car
+LOO_Car_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Car_cstIT_all8TS))
+LOO_Car_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Car_cstSD_all8TS) )
+# --- Cyp
+LOO_Cyp_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Cyp_cstIT_all8TS))
+LOO_Cyp_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Cyp_cstSD_all8TS) )
+# --- Dim
+LOO_Dim_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Dim_cstIT_all8TS))
+LOO_Dim_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Dim_cstSD_all8TS) )
+# --- Mal
+LOO_Mal_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Mal_cstIT_all8TS))
+LOO_Mal_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_Mal_cstSD_all8TS) )
+# --- PRZ
+LOO_PRZ_cstIT_all8TS <- data.frame(TS = 8,
+                                    model_type = "IT",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_PRZ_cstIT_all8TS))
+LOO_PRZ_cstSD_all8TS <- data.frame(TS = 8,
+                                    model_type = "SD",
+                                    subset = "all",
+                                    LOO = LOO_measure(LogLik_PRZ_cstSD_all8TS) )
+
+```
