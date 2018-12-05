@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1972932.svg)](https://doi.org/10.5281/zenodo.1972932)
+
 # Appendix_PCI_Ecology_2018_Recommendation_EQS
 
 Data and Script used in the article recommended in [PCI Ecology 2018](---)
