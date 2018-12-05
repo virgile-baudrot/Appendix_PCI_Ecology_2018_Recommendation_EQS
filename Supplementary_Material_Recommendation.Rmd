@@ -1,0 +1,3383 @@
+---
+title: "supplementary Material for MFx"
+author: "Virgile Baudrot and Sandrine Charles"
+date: "2 février 2018"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Load package & data
+
+```{r loadPackages}
+#library(rstanTKTD)
+library(morse)
+library(deSolve)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(pracma)
+library(gridExtra)
+library(zoo)
+library(matrixStats)
+
+source("solverTKTD.R")
+source("MFx_Formula.R")
+
+load(file = "data_Car_cst.rda")
+load(file = "data_Car_var.rda")
+load(file = "data_Cyp_cst.rda")
+load(file = "data_Cyp_var.rda")
+load(file = "data_Dim_cst.rda")
+load(file = "data_Dim_var.rda")
+load(file = "data_Mal_cst.rda")
+load(file = "data_Mal_var.rda")
+load(file = "data_PRZ_cst.rda")
+load(file = "data_PRZ_var.rda")
+
+# Model SD
+fit_Car_cstSD_MORSE <- morse::survFit(survData(Car_cst), model_type = "SD")
+fit_Cyp_cstSD_MORSE <- morse::survFit(survData(Cyp_cst), model_type = "SD")
+fit_Dim_cstSD_MORSE <- morse::survFit(survData(Dim_cst), model_type = "SD")
+fit_Mal_cstSD_MORSE <- morse::survFit(survData(Mal_cst), model_type = "SD")
+fit_PRZ_cstSD_MORSE <- morse::survFit(survData(PRZ_cst), model_type = "SD")
+
+fit_Car_varSD_MORSE <- morse::survFit(survData(Car_var), model_type = "SD")
+fit_Cyp_varSD_MORSE <- morse::survFit(survData(Cyp_var), model_type = "SD")
+fit_Dim_varSD_MORSE <- morse::survFit(survData(Dim_var), model_type = "SD")
+fit_Mal_varSD_MORSE <- morse::survFit(survData(Mal_var), model_type = "SD")
+fit_PRZ_varSD_MORSE <- morse::survFit(survData(PRZ_var), model_type = "SD")
+
+# Model IT
+fit_Car_cstIT_MORSE <- morse::survFit(survData(Car_cst), model_type = "IT")
+fit_Cyp_cstIT_MORSE <- morse::survFit(survData(Cyp_cst), model_type = "IT")
+fit_Dim_cstIT_MORSE <- morse::survFit(survData(Dim_cst), model_type = "IT")
+fit_Mal_cstIT_MORSE <- morse::survFit(survData(Mal_cst), model_type = "IT")
+fit_PRZ_cstIT_MORSE <- morse::survFit(survData(PRZ_cst), model_type = "IT")
+
+fit_Car_varIT_MORSE <- morse::survFit(survData(Car_var), model_type = "IT")
+fit_Cyp_varIT_MORSE <- morse::survFit(survData(Cyp_var), model_type = "IT")
+fit_Dim_varIT_MORSE <- morse::survFit(survData(Dim_var), model_type = "IT")
+fit_Mal_varIT_MORSE <- morse::survFit(survData(Mal_var), model_type = "IT")
+fit_PRZ_varIT_MORSE <- morse::survFit(survData(PRZ_var), model_type = "IT")
+
+
+# # CONSTANT
+# ### SD
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_cstSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_cstSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_cstSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_cstSD_MORSE.rda")
+# ### IT
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_cstIT_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_cstIT_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_cstIT_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_cstIT_MORSE.rda")
+# 
+# # VARIABLE
+# ## morse
+# ### SD
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_varSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_varSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_varSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_varSD_MORSE.rda")
+# ### IT
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Car_varIT_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Cyp_varIT_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Dim_varIT_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_Mal_varIT_MORSE.rda")
+# 
+# # PRZ
+# ## rstanTKTD
+# ## morse
+# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_cstSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_cstIT_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_varSD_MORSE.rda")
+# load(file = "DATA_SIMULATION/fit_cluster/fit_PRZ_varIT_MORSE.rda")
+```
+
+
+# Variable pulses
+
+## Car
+
+```{r}
+CONC_low =  max(fit_Car_cstIT_MORSE$original.data$conc)/1
+CONC_mid =  max(fit_Car_cstIT_MORSE$original.data$conc)/(1*2/3)
+CONC_high =  max(fit_Car_cstIT_MORSE$original.data$conc)/(1*1/3)
+
+###-------------------------------------------------------------------  Car_cstSD
+## low%
+predict_Car_cstSD_lowRTeqAUC <- depuration_df(x = fit_Car_cstSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Car_cstSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_cstSD_lowRTeqAUC.rda")
+## mid%
+predict_Car_cstSD_midRTeqAUC <- depuration_df(x = fit_Car_cstSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Car_cstSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_cstSD_midRTeqAUC.rda")
+## high%
+predict_Car_cstSD_highRTeqAUC <- depuration_df(x = fit_Car_cstSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Car_cstSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_cstSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Car_cstIT
+
+## low%
+predict_Car_cstIT_lowRTeqAUC <- depuration_df(x = fit_Car_cstIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Car_cstIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_cstIT_lowRTeqAUC.rda")
+## mid%
+predict_Car_cstIT_midRTeqAUC <- depuration_df(x = fit_Car_cstIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Car_cstIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_cstIT_midRTeqAUC.rda")
+## high%
+predict_Car_cstIT_highRTeqAUC <- depuration_df(x = fit_Car_cstIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Car_cstIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_cstIT_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Car_varSD
+
+## low%
+predict_Car_varSD_lowRTeqAUC <- depuration_df(x = fit_Car_varSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Car_varSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_varSD_lowRTeqAUC.rda")
+## mid%
+predict_Car_varSD_midRTeqAUC <- depuration_df(x = fit_Car_varSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Car_varSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_varSD_midRTeqAUC.rda")
+## high%
+predict_Car_varSD_highRTeqAUC <- depuration_df(x = fit_Car_varSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Car_varSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_varSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Car_varIT
+
+## low%
+predict_Car_varIT_lowRTeqAUC <- depuration_df(x = fit_Car_varIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Car_varIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_varIT_lowRTeqAUC.rda")
+## mid%
+predict_Car_varIT_midRTeqAUC <- depuration_df(x = fit_Car_varIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Car_varIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_varIT_midRTeqAUC.rda")
+## high%
+predict_Car_varIT_highRTeqAUC <- depuration_df(x = fit_Car_varIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Car_varIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Car_varIT_highRTeqAUC.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Car_cstSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstSD_highRTeqAUC.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Car_cstIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstIT_highRTeqAUC.rda")
+
+plt_Car_cst_lowRTeqAUC <- depuration_plot_SDandIT(predict_Car_cstSD_lowRTeqAUC,
+                                                  predict_Car_cstIT_lowRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2e3,
+                                                  title = "Car_cstIT_lowRTeqAUC")
+plt_Car_cst_midRTeqAUC <- depuration_plot_SDandIT(predict_Car_cstSD_midRTeqAUC,
+                                                  predict_Car_cstIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2e3,
+                                                  title = "Car_cstIT_midRTeqAUC")
+plt_Car_cst_highRTeqAUC <- depuration_plot_SDandIT(predict_Car_cstSD_highRTeqAUC,
+                                                  predict_Car_cstIT_highRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2e3,
+                                                  title = "Car_cstIT_highRTeqAUC")
+
+
+plt_MFx_Car_cst_RTeqAUC =  grid.arrange(plt_Car_cst_lowRTeqAUC, plt_Car_cst_midRTeqAUC, plt_Car_cst_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Car_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Car_cst_RTeqAUC.png", width = 11, height = 7)
+
+### ------------------------------------------------------ PLOT var
+
+load(file = "Sensitivity_SIMULATION/predict_Car_varSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varSD_highRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varIT_highRTeqAUC.rda")
+
+plt_Car_var_lowRTeqAUC <- depuration_plot_SDandIT(predict_Car_varSD_lowRTeqAUC,
+                                                  predict_Car_varIT_lowRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2e3,
+                                                  title = "Car_varIT_lowRTeqAUC")
+plt_Car_var_midRTeqAUC <- depuration_plot_SDandIT(predict_Car_varSD_midRTeqAUC,
+                                                  predict_Car_varIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2e3,
+                                                  title = "Car_varIT_midRTeqAUC")
+plt_Car_var_highRTeqAUC <- depuration_plot_SDandIT(predict_Car_varSD_highRTeqAUC,
+                                                  predict_Car_varIT_highRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2e3,
+                                                  title = "Car_varIT_highRTeqAUC")
+
+plt_MFx_Car_var_RTeqAUC =  grid.arrange(plt_Car_var_lowRTeqAUC, plt_Car_var_midRTeqAUC, plt_Car_var_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Car_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Car_var_RTeqAUC.png", width = 11, height = 7)
+```
+
+## Cyp
+
+```{r}
+CONC_low =  max(fit_Cyp_cstIT_MORSE$original.data$conc)/40
+CONC_mid =  max(fit_Cyp_cstIT_MORSE$original.data$conc)/(40*2/3)
+CONC_high =  max(fit_Cyp_cstIT_MORSE$original.data$conc)/(40*1/3)
+
+###-------------------------------------------------------------------  Cyp_cstSD
+# ## low%
+# predict_Cyp_cstSD_lowRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
+#                                               Maximal_conc = CONC_low,
+#                                               recovery_time = 1.25,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "SD")
+# save(predict_Cyp_cstSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_lowRTeqAUC.rda")
+# ## mid%
+# predict_Cyp_cstSD_midRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
+#                                               Maximal_conc = CONC_mid,
+#                                               recovery_time = 2.6,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "SD")
+# save(predict_Cyp_cstSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_midRTeqAUC.rda")
+# ## high%
+# predict_Cyp_cstSD_highRTeqAUC <- depuration_df(x = fit_Cyp_cstSD_MORSE,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7.7,
+#                                                draws = 1000,
+#                                                max_time = 20,
+#                                                model_type = "SD")
+# save(predict_Cyp_cstSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_highRTeqAUC.rda")
+# 
+# ###-------------------------------------------------------------------  Cyp_cstIT
+# 
+# ## low%
+# predict_Cyp_cstIT_lowRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
+#                                               Maximal_conc = CONC_low,
+#                                               recovery_time = 1.25,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "IT")
+# save(predict_Cyp_cstIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_lowRTeqAUC.rda")
+# ## mid%
+# predict_Cyp_cstIT_midRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
+#                                               Maximal_conc = CONC_mid,
+#                                               recovery_time = 2.6,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "IT")
+# draws = 1000,save(predict_Cyp_cstIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_midRTeqAUC.rda")
+# ## high%
+# predict_Cyp_cstIT_highRTeqAUC <- depuration_df(x = fit_Cyp_cstIT_MORSE,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7.7,
+#                                                draws = 1000,
+#                                                max_time = 20,
+#                                                model_type = "IT")
+# save(predict_Cyp_cstIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_highRTeqAUC.rda")
+# 
+# ###-------------------------------------------------------------------  Cyp_varSD
+# 
+# ## low%
+# predict_Cyp_varSD_lowRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
+#                                               Maximal_conc = CONC_low,
+#                                               recovery_time = 1.25,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "SD")
+# save(predict_Cyp_varSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_lowRTeqAUC.rda")
+# ## mid%
+# predict_Cyp_varSD_midRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
+#                                               Maximal_conc = CONC_mid,
+#                                               recovery_time = 2.6,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "SD")
+# save(predict_Cyp_varSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_midRTeqAUC.rda")
+# ## high%
+# predict_Cyp_varSD_highRTeqAUC <- depuration_df(x = fit_Cyp_varSD_MORSE,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7.7,
+#                                                draws = 1000,
+#                                                max_time = 20,
+#                                                model_type = "SD")
+# save(predict_Cyp_varSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_highRTeqAUC.rda")
+# 
+# ###-------------------------------------------------------------------  Cyp_varIT
+# 
+# ## low%
+# predict_Cyp_varIT_lowRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
+#                                               Maximal_conc = CONC_low,
+#                                               recovery_time = 1.25,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "IT")
+# save(predict_Cyp_varIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_lowRTeqAUC.rda")
+# ## mid%
+# predict_Cyp_varIT_midRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
+#                                               Maximal_conc = CONC_mid,
+#                                               recovery_time = 2.6,
+#                                               draws = 1000,
+#                                               max_time = 20,
+#                                               model_type = "IT")
+# save(predict_Cyp_varIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_midRTeqAUC.rda")
+# ## high%
+# predict_Cyp_varIT_highRTeqAUC <- depuration_df(x = fit_Cyp_varIT_MORSE,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7.7,
+#                                                draws = 1000,
+#                                                max_time = 20,
+#                                                model_type = "IT")
+# save(predict_Cyp_varIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_highRTeqAUC.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_highRTeqAUC.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_highRTeqAUC.rda")
+
+plt_Cyp_cst_lowRTeqAUC <- depuration_plot_SDandIT(predict_Cyp_cstSD_lowRTeqAUC,
+                                                  predict_Cyp_cstIT_lowRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_cstIT_lowRTeqAUC")
+plt_Cyp_cst_midRTeqAUC <- depuration_plot_SDandIT(predict_Cyp_cstSD_midRTeqAUC,
+                                                  predict_Cyp_cstIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_cstIT_midRTeqAUC")
+plt_Cyp_cst_highRTeqAUC <- depuration_plot_SDandIT(predict_Cyp_cstSD_highRTeqAUC,
+                                                  predict_Cyp_cstIT_highRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_cstIT_highRTeqAUC")
+
+
+plt_MFx_Cyp_cst_RTeqAUC =  grid.arrange(plt_Cyp_cst_lowRTeqAUC, plt_Cyp_cst_midRTeqAUC, plt_Cyp_cst_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Cyp_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Cyp_cst_RTeqAUC.png", width = 11, height = 7)
+ggsave(plot = plt_MFx_Cyp_cst_RTeqAUC, device = "svg", filename = "img/plt_MFx_Cyp_cst_RTeqAUC.svg", width = 11, height = 7)
+### ------------------------------------------------------ PLOT var
+
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varSD_highRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varIT_highRTeqAUC.rda")
+
+plt_Cyp_var_lowRTeqAUC <- depuration_plot_SDandIT(predict_Cyp_varSD_lowRTeqAUC,
+                                                  predict_Cyp_varIT_lowRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_varIT_lowRTeqAUC")
+plt_Cyp_var_midRTeqAUC <- depuration_plot_SDandIT(predict_Cyp_varSD_midRTeqAUC,
+                                                  predict_Cyp_varIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_varIT_midRTeqAUC")
+plt_Cyp_var_highRTeqAUC <- depuration_plot_SDandIT(predict_Cyp_varSD_highRTeqAUC,
+                                                  predict_Cyp_varIT_highRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_varIT_highRTeqAUC")
+
+plt_MFx_Cyp_var_RTeqAUC =  grid.arrange(plt_Cyp_var_lowRTeqAUC, plt_Cyp_var_midRTeqAUC, plt_Cyp_var_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Cyp_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Cyp_var_RTeqAUC.png", width = 11, height = 7)
+ggsave(plot = plt_MFx_Cyp_var_RTeqAUC, device = "svg", filename = "img/plt_MFx_Cyp_var_RTeqAUC.svg", width = 11, height = 7)
+```
+
+## Dim
+
+```{r}
+CONC_low =  max(fit_Dim_cstIT_MORSE$original.data$conc)/10
+CONC_mid =  max(fit_Dim_cstIT_MORSE$original.data$conc)/(10*2/3)
+CONC_high =  max(fit_Dim_cstIT_MORSE$original.data$conc)/(10*1/3)
+
+###-------------------------------------------------------------------  Dim_cstSD
+## low%
+predict_Dim_cstSD_lowRTeqAUC <- depuration_df(x = fit_Dim_cstSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Dim_cstSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_cstSD_lowRTeqAUC.rda")
+## mid%
+predict_Dim_cstSD_midRTeqAUC <- depuration_df(x = fit_Dim_cstSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Dim_cstSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_cstSD_midRTeqAUC.rda")
+## high%
+predict_Dim_cstSD_highRTeqAUC <- depuration_df(x = fit_Dim_cstSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Dim_cstSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_cstSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Dim_cstIT
+
+## low%
+predict_Dim_cstIT_lowRTeqAUC <- depuration_df(x = fit_Dim_cstIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Dim_cstIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_cstIT_lowRTeqAUC.rda")
+## mid%
+predict_Dim_cstIT_midRTeqAUC <- depuration_df(x = fit_Dim_cstIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Dim_cstIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_cstIT_midRTeqAUC.rda")
+## high%
+predict_Dim_cstIT_highRTeqAUC <- depuration_df(x = fit_Dim_cstIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Dim_cstIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_cstIT_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Dim_varSD
+
+## low%
+predict_Dim_varSD_lowRTeqAUC <- depuration_df(x = fit_Dim_varSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Dim_varSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_varSD_lowRTeqAUC.rda")
+## mid%
+predict_Dim_varSD_midRTeqAUC <- depuration_df(x = fit_Dim_varSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Dim_varSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_varSD_midRTeqAUC.rda")
+## high%
+predict_Dim_varSD_highRTeqAUC <- depuration_df(x = fit_Dim_varSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Dim_varSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_varSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Dim_varIT
+
+## low%
+predict_Dim_varIT_lowRTeqAUC <- depuration_df(x = fit_Dim_varIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Dim_varIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_varIT_lowRTeqAUC.rda")
+## mid%
+predict_Dim_varIT_midRTeqAUC <- depuration_df(x = fit_Dim_varIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Dim_varIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_varIT_midRTeqAUC.rda")
+## high%
+predict_Dim_varIT_highRTeqAUC <- depuration_df(x = fit_Dim_varIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Dim_varIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Dim_varIT_highRTeqAUC.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstSD_highRTeqAUC.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstIT_highRTeqAUC.rda")
+
+plt_Dim_cst_lowRTeqAUC <- depuration_plot_SDandIT(predict_Dim_cstSD_lowRTeqAUC,
+                                                  predict_Dim_cstIT_lowRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2.5e4,
+                                                  title = "Dim_cstIT_lowRTeqAUC")
+plt_Dim_cst_midRTeqAUC <- depuration_plot_SDandIT(predict_Dim_cstSD_midRTeqAUC,
+                                                  predict_Dim_cstIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2.5e4,
+                                                  title = "Dim_cstIT_midRTeqAUC")
+plt_Dim_cst_highRTeqAUC <- depuration_plot_SDandIT(predict_Dim_cstSD_highRTeqAUC,
+                                                  predict_Dim_cstIT_highRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2.5e4,
+                                                  title = "Dim_cstIT_highRTeqAUC")
+
+
+plt_MFx_Dim_cst_RTeqAUC =  grid.arrange(plt_Dim_cst_lowRTeqAUC, plt_Dim_cst_midRTeqAUC, plt_Dim_cst_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Dim_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Dim_cst_RTeqAUC.png", width = 11, height = 7)
+
+### ------------------------------------------------------ PLOT var
+
+load(file = "Sensitivity_SIMULATION/predict_Dim_varSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varSD_highRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varIT_highRTeqAUC.rda")
+
+plt_Dim_var_lowRTeqAUC <- depuration_plot_SDandIT(predict_Dim_varSD_lowRTeqAUC,
+                                                  predict_Dim_varIT_lowRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2.5e4,
+                                                  title = "Dim_varIT_lowRTeqAUC")
+plt_Dim_var_midRTeqAUC <- depuration_plot_SDandIT(predict_Dim_varSD_midRTeqAUC,
+                                                  predict_Dim_varIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2.5e4,
+                                                  title = "Dim_varIT_midRTeqAUC")
+plt_Dim_var_highRTeqAUC <- depuration_plot_SDandIT(predict_Dim_varSD_highRTeqAUC,
+                                                  predict_Dim_varIT_highRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2.5e4,
+                                                  title = "Dim_varIT_highRTeqAUC")
+
+plt_MFx_Dim_var_RTeqAUC =  grid.arrange(plt_Dim_var_lowRTeqAUC, plt_Dim_var_midRTeqAUC, plt_Dim_var_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Dim_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Dim_var_RTeqAUC.png", width = 11, height = 7)
+```
+
+## Mal
+
+```{r}
+CONC_low =  max(fit_Mal_cstIT_MORSE$original.data$conc)/5
+CONC_mid =  max(fit_Mal_cstIT_MORSE$original.data$conc)/(5*2/3)
+CONC_high =  max(fit_Mal_cstIT_MORSE$original.data$conc)/(5*1/3)
+
+###-------------------------------------------------------------------  Mal_cstSD
+## low%
+predict_Mal_cstSD_lowRTeqAUC <- depuration_df(x = fit_Mal_cstSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Mal_cstSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_cstSD_lowRTeqAUC.rda")
+## mid%
+predict_Mal_cstSD_midRTeqAUC <- depuration_df(x = fit_Mal_cstSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Mal_cstSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_cstSD_midRTeqAUC.rda")
+## high%
+predict_Mal_cstSD_highRTeqAUC <- depuration_df(x = fit_Mal_cstSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Mal_cstSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_cstSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Mal_cstIT
+
+## low%
+predict_Mal_cstIT_lowRTeqAUC <- depuration_df(x = fit_Mal_cstIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Mal_cstIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_cstIT_lowRTeqAUC.rda")
+## mid%
+predict_Mal_cstIT_midRTeqAUC <- depuration_df(x = fit_Mal_cstIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Mal_cstIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_cstIT_midRTeqAUC.rda")
+## high%
+predict_Mal_cstIT_highRTeqAUC <- depuration_df(x = fit_Mal_cstIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Mal_cstIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_cstIT_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Mal_varSD
+
+## low%
+predict_Mal_varSD_lowRTeqAUC <- depuration_df(x = fit_Mal_varSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Mal_varSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_varSD_lowRTeqAUC.rda")
+## mid%
+predict_Mal_varSD_midRTeqAUC <- depuration_df(x = fit_Mal_varSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_Mal_varSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_varSD_midRTeqAUC.rda")
+## high%
+predict_Mal_varSD_highRTeqAUC <- depuration_df(x = fit_Mal_varSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_Mal_varSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_varSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  Mal_varIT
+
+## low%
+predict_Mal_varIT_lowRTeqAUC <- depuration_df(x = fit_Mal_varIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Mal_varIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_varIT_lowRTeqAUC.rda")
+## mid%
+predict_Mal_varIT_midRTeqAUC <- depuration_df(x = fit_Mal_varIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_Mal_varIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_varIT_midRTeqAUC.rda")
+## high%
+predict_Mal_varIT_highRTeqAUC <- depuration_df(x = fit_Mal_varIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_Mal_varIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_Mal_varIT_highRTeqAUC.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstSD_highRTeqAUC.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstIT_highRTeqAUC.rda")
+
+plt_Mal_cst_lowRTeqAUC <- depuration_plot_SDandIT(predict_Mal_cstSD_lowRTeqAUC,
+                                                  predict_Mal_cstIT_lowRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.75,
+                                                  title = "Mal_cstIT_lowRTeqAUC")
+plt_Mal_cst_midRTeqAUC <- depuration_plot_SDandIT(predict_Mal_cstSD_midRTeqAUC,
+                                                  predict_Mal_cstIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.75,
+                                                  title = "Mal_cstIT_midRTeqAUC")
+plt_Mal_cst_highRTeqAUC <- depuration_plot_SDandIT(predict_Mal_cstSD_highRTeqAUC,
+                                                  predict_Mal_cstIT_highRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.75,
+                                                  title = "Mal_cstIT_highRTeqAUC")
+
+
+plt_MFx_Mal_cst_RTeqAUC =  grid.arrange(plt_Mal_cst_lowRTeqAUC, plt_Mal_cst_midRTeqAUC, plt_Mal_cst_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Mal_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Mal_cst_RTeqAUC.png", width = 11, height = 7)
+
+### ------------------------------------------------------ PLOT var
+
+load(file = "Sensitivity_SIMULATION/predict_Mal_varSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varSD_highRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varIT_highRTeqAUC.rda")
+
+plt_Mal_var_lowRTeqAUC <- depuration_plot_SDandIT(predict_Mal_varSD_lowRTeqAUC,
+                                                  predict_Mal_varIT_lowRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.75,
+                                                  title = "Mal_varIT_lowRTeqAUC")
+plt_Mal_var_midRTeqAUC <- depuration_plot_SDandIT(predict_Mal_varSD_midRTeqAUC,
+                                                  predict_Mal_varIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.75,
+                                                  title = "Mal_varIT_midRTeqAUC")
+plt_Mal_var_highRTeqAUC <- depuration_plot_SDandIT(predict_Mal_varSD_highRTeqAUC,
+                                                  predict_Mal_varIT_highRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.75,
+                                                  title = "Mal_varIT_highRTeqAUC")
+
+plt_MFx_Mal_var_RTeqAUC =  grid.arrange(plt_Mal_var_lowRTeqAUC, plt_Mal_var_midRTeqAUC, plt_Mal_var_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_Mal_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Mal_var_RTeqAUC.png", width = 11, height = 7)
+```
+
+
+
+## PRZ
+
+```{r}
+CONC_low =  max(fit_PRZ_cstIT_MORSE$original.data$conc)/1
+CONC_mid =  max(fit_PRZ_cstIT_MORSE$original.data$conc)/(1*2/3)
+CONC_high =  max(fit_PRZ_cstIT_MORSE$original.data$conc)/(1*1/3)
+
+###-------------------------------------------------------------------  PRZ_cstSD
+## low%
+predict_PRZ_cstSD_lowRTeqAUC <- depuration_df(x = fit_PRZ_cstSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_PRZ_cstSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_lowRTeqAUC.rda")
+## mid%
+predict_PRZ_cstSD_midRTeqAUC <- depuration_df(x = fit_PRZ_cstSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_PRZ_cstSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_midRTeqAUC.rda")
+## high%
+predict_PRZ_cstSD_highRTeqAUC <- depuration_df(x = fit_PRZ_cstSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_PRZ_cstSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  PRZ_cstIT
+
+## low%
+predict_PRZ_cstIT_lowRTeqAUC <- depuration_df(x = fit_PRZ_cstIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_PRZ_cstIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_lowRTeqAUC.rda")
+## mid%
+predict_PRZ_cstIT_midRTeqAUC <- depuration_df(x = fit_PRZ_cstIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_PRZ_cstIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_midRTeqAUC.rda")
+## high%
+predict_PRZ_cstIT_highRTeqAUC <- depuration_df(x = fit_PRZ_cstIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_PRZ_cstIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  PRZ_varSD
+
+## low%
+predict_PRZ_varSD_lowRTeqAUC <- depuration_df(x = fit_PRZ_varSD_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_PRZ_varSD_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_lowRTeqAUC.rda")
+## mid%
+predict_PRZ_varSD_midRTeqAUC <- depuration_df(x = fit_PRZ_varSD_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "SD")
+save(predict_PRZ_varSD_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_midRTeqAUC.rda")
+## high%
+predict_PRZ_varSD_highRTeqAUC <- depuration_df(x = fit_PRZ_varSD_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "SD")
+save(predict_PRZ_varSD_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_highRTeqAUC.rda")
+
+###-------------------------------------------------------------------  PRZ_varIT
+
+## low%
+predict_PRZ_varIT_lowRTeqAUC <- depuration_df(x = fit_PRZ_varIT_MORSE,
+                                              Maximal_conc = CONC_low,
+                                              recovery_time = 1.25,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_PRZ_varIT_lowRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_lowRTeqAUC.rda")
+## mid%
+predict_PRZ_varIT_midRTeqAUC <- depuration_df(x = fit_PRZ_varIT_MORSE,
+                                              Maximal_conc = CONC_mid,
+                                              recovery_time = 2.6,
+                                              draws = 1000,
+                                              max_time = 20,
+                                              model_type = "IT")
+save(predict_PRZ_varIT_midRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_midRTeqAUC.rda")
+# high%
+predict_PRZ_varIT_highRTeqAUC <- depuration_df(x = fit_PRZ_varIT_MORSE,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7.7,
+                                               draws = 1000,
+                                               max_time = 20,
+                                               model_type = "IT")
+save(predict_PRZ_varIT_highRTeqAUC, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_highRTeqAUC.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_highRTeqAUC.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_highRTeqAUC.rda")
+
+plt_PRZ_cst_lowRTeqAUC <- depuration_plot_SDandIT(predict_PRZ_cstSD_lowRTeqAUC,
+                                                  predict_PRZ_cstIT_lowRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 120,
+                                                  title = "PRZ_cstIT_lowRTeqAUC")
+plt_PRZ_cst_midRTeqAUC <- depuration_plot_SDandIT(predict_PRZ_cstSD_midRTeqAUC,
+                                                  predict_PRZ_cstIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 120,
+                                                  title = "PRZ_cstIT_midRTeqAUC")
+plt_PRZ_cst_highRTeqAUC <- depuration_plot_SDandIT(predict_PRZ_cstSD_highRTeqAUC,
+                                                  predict_PRZ_cstIT_highRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 120,
+                                                  title = "PRZ_cstIT_highRTeqAUC")
+
+
+plt_MFx_PRZ_cst_RTeqAUC =  grid.arrange(plt_PRZ_cst_lowRTeqAUC, plt_PRZ_cst_midRTeqAUC, plt_PRZ_cst_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_PRZ_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_PRZ_cst_RTeqAUC.png", width = 11, height = 7)
+ggsave(plot = plt_MFx_PRZ_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_PRZ_cst_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+### ------------------------------------------------------ PLOT var
+
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varSD_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varSD_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varSD_highRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varIT_lowRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varIT_midRTeqAUC.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varIT_highRTeqAUC.rda")
+
+plt_PRZ_var_lowRTeqAUC <- depuration_plot_SDandIT(predict_PRZ_varSD_lowRTeqAUC,
+                                                  predict_PRZ_varIT_lowRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 120,
+                                                  title = "PRZ_varIT_lowRTeqAUC")
+plt_PRZ_var_midRTeqAUC <- depuration_plot_SDandIT(predict_PRZ_varSD_midRTeqAUC,
+                                                  predict_PRZ_varIT_midRTeqAUC,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 120,
+                                                  title = "PRZ_varIT_midRTeqAUC")
+plt_PRZ_var_highRTeqAUC <- depuration_plot_SDandIT(predict_PRZ_varSD_highRTeqAUC,
+                                                  predict_PRZ_varIT_highRTeqAUC,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 120,
+                                                  title = "PRZ_varIT_highRTeqAUC")
+
+plt_MFx_PRZ_var_RTeqAUC =  grid.arrange(plt_PRZ_var_lowRTeqAUC, plt_PRZ_var_midRTeqAUC, plt_PRZ_var_highRTeqAUC, ncol=3)
+
+ggsave(plot = plt_MFx_PRZ_var_RTeqAUC, device = "png", filename = "img/plt_MFx_PRZ_var_RTeqAUC.png", width = 11, height = 7)
+```
+
+# 2 pulses
+
+## Car
+
+```{r}
+CONC_high =  max(fit_Car_cstIT_MORSE$original.data$conc)/1
+
+###-------------------------------------------------------------------  Car_cstSD
+## low%
+predict_Car_cstSD_low2pulses <- depuration_df(x = fit_Car_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Car_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Car_cstSD_low2pulses.rda")
+## mid%
+predict_Car_cstSD_mid2pulses <- depuration_df(x = fit_Car_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Car_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Car_cstSD_mid2pulses.rda")
+## high%
+predict_Car_cstSD_high2pulses <- depuration_df(x = fit_Car_cstSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Car_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Car_cstSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Car_cstIT
+
+## low%
+predict_Car_cstIT_low2pulses <- depuration_df(x = fit_Car_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Car_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Car_cstIT_low2pulses.rda")
+## mid%
+predict_Car_cstIT_mid2pulses <- depuration_df(x = fit_Car_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Car_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Car_cstIT_mid2pulses.rda")
+## high%
+predict_Car_cstIT_high2pulses <- depuration_df(x = fit_Car_cstIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Car_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Car_cstIT_high2pulses.rda")
+
+
+
+###-------------------------------------------------------------------  Car_varSD
+
+## low%
+predict_Car_varSD_low2pulses <- depuration_df(x = fit_Car_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Car_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Car_varSD_low2pulses.rda")
+## mid%
+predict_Car_varSD_mid2pulses <- depuration_df(x = fit_Car_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Car_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Car_varSD_mid2pulses.rda")
+## high%
+predict_Car_varSD_high2pulses <- depuration_df(x = fit_Car_varSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Car_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Car_varSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Car_varIT
+
+## low%
+predict_Car_varIT_low2pulses <- depuration_df(x = fit_Car_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Car_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Car_varIT_low2pulses.rda")
+## mid%
+predict_Car_varIT_mid2pulses <- depuration_df(x = fit_Car_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Car_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Car_varIT_mid2pulses.rda")
+## high%
+predict_Car_varIT_high2pulses <- depuration_df(x = fit_Car_varIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Car_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Car_varIT_high2pulses.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+load(file = "Sensitivity_SIMULATION/predict_Car_cstSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstSD_high2pulses.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Car_cstIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_cstIT_high2pulses.rda")
+
+plt_Car_cst_low2pulses <- depuration_plot_SDandIT(predict_Car_cstSD_low2pulses,
+                                                  predict_Car_cstIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1e3,
+                                                  title = "Car_cstIT_low2pulses")
+plt_Car_cst_mid2pulses <- depuration_plot_SDandIT(predict_Car_cstSD_mid2pulses,
+                                                  predict_Car_cstIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 1e3,
+                                                  title = "Car_cstIT_mid2pulses")
+plt_Car_cst_high2pulses <- depuration_plot_SDandIT(predict_Car_cstSD_high2pulses,
+                                                  predict_Car_cstIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1e3,
+                                                  title = "Car_cstIT_high2pulses")
+
+plt_MFx_Car_cst_2pulses =  grid.arrange(plt_Car_cst_low2pulses, plt_Car_cst_mid2pulses, plt_Car_cst_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Car_cst_2pulses, device = "png", filename = "img/plt_MFx_Car_cst_2pulses.png", width = 11, height = 7)
+
+
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Car_varSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varSD_high2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Car_varIT_high2pulses.rda")
+
+plt_Car_var_low2pulses <- depuration_plot_SDandIT(predict_Car_varSD_low2pulses,
+                                                  predict_Car_varIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1e3,
+                                                  title = "Car_varIT_low2pulses")
+plt_Car_var_mid2pulses <- depuration_plot_SDandIT(predict_Car_varSD_mid2pulses,
+                                                  predict_Car_varIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 1e3,
+                                                  title = "Car_varIT_mid2pulses")
+plt_Car_var_high2pulses <- depuration_plot_SDandIT(predict_Car_varSD_high2pulses,
+                                                  predict_Car_varIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1e3,
+                                                  title = "Car_varIT_high2pulses")
+
+plt_MFx_Car_var_2pulses =  grid.arrange(plt_Car_var_low2pulses, plt_Car_var_mid2pulses, plt_Car_var_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Car_var_2pulses, device = "png", filename = "img/plt_MFx_Car_var_2pulses.png", width = 11, height = 7)
+```
+
+## Cyp
+
+```{r}
+CONC_high =  max(fit_Cyp_cstIT_MORSE$original.data$conc)/20
+# ###-------------------------------------------------------------------  Cyp_cstSD
+# ## low%
+# predict_Cyp_cstSD_low2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
+#                                               Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
+#                                               recovery_time = 0.5,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_Cyp_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_low2pulses.rda")
+# ## mid%
+# predict_Cyp_cstSD_mid2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
+#                                               Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
+#                                               recovery_time = 2,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_Cyp_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_mid2pulses.rda")
+# ## high%
+# predict_Cyp_cstSD_high2pulses <- depuration_df(x = fit_Cyp_cstSD_MORSE, pulse = 2,
+#                                                Maximal_conc = max(fit_Cyp_cstSD_MORSE$original.data$conc)/20,
+#                                                recovery_time = 7,
+#                                                max_time = 10,
+#                                                model_type = "SD")
+# save(predict_Cyp_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_high2pulses.rda")
+# 
+# ###-------------------------------------------------------------------  Cyp_cstIT
+# 
+# ## low%
+# predict_Cyp_cstIT_low2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
+#                                               Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
+#                                               recovery_time = 0.5,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_Cyp_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_low2pulses.rda")
+# ## mid%
+# predict_Cyp_cstIT_mid2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
+#                                               Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
+#                                               recovery_time = 2,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_Cyp_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_mid2pulses.rda")
+# ## high%
+# predict_Cyp_cstIT_high2pulses <- depuration_df(x = fit_Cyp_cstIT_MORSE, pulse = 2,
+#                                                Maximal_conc = max(fit_Cyp_cstIT_MORSE$original.data$conc)/20,
+#                                                recovery_time = 7,
+#                                                max_time = 10,
+#                                                model_type = "IT")
+# save(predict_Cyp_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_high2pulses.rda")
+# 
+# 
+# 
+# ###-------------------------------------------------------------------  Cyp_varSD
+# 
+# ## low%
+# predict_Cyp_varSD_low2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 0.5,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_Cyp_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_low2pulses.rda")
+# ## mid%
+# predict_Cyp_varSD_mid2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 2,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_Cyp_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_mid2pulses.rda")
+# ## high%
+# predict_Cyp_varSD_high2pulses <- depuration_df(x = fit_Cyp_varSD_MORSE, pulse = 2,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7,
+#                                                max_time = 10,
+#                                                model_type = "SD")
+# save(predict_Cyp_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varSD_high2pulses.rda")
+# 
+# ###-------------------------------------------------------------------  Cyp_varIT
+# 
+# ## low%
+# predict_Cyp_varIT_low2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 0.5,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_Cyp_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_low2pulses.rda")
+# ## mid%
+# predict_Cyp_varIT_mid2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 2,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_Cyp_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_mid2pulses.rda")
+# ## high%
+# predict_Cyp_varIT_high2pulses <- depuration_df(x = fit_Cyp_varIT_MORSE, pulse = 2,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7,
+#                                                max_time = 10,
+#                                                model_type = "IT")
+# save(predict_Cyp_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Cyp_varIT_high2pulses.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstSD_high2pulses.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_cstIT_high2pulses.rda")
+
+plt_Cyp_cst_low2pulses <- depuration_plot_SDandIT(predict_Cyp_cstSD_low2pulses,
+                                                  predict_Cyp_cstIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_cstIT_low2pulses")
+plt_Cyp_cst_mid2pulses <- depuration_plot_SDandIT(predict_Cyp_cstSD_mid2pulses,
+                                                  predict_Cyp_cstIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_cstIT_mid2pulses")
+plt_Cyp_cst_high2pulses <- depuration_plot_SDandIT(predict_Cyp_cstSD_high2pulses,
+                                                  predict_Cyp_cstIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_cstIT_high2pulses")
+
+plt_MFx_Cyp_cst_2pulses =  grid.arrange(plt_Cyp_cst_low2pulses, plt_Cyp_cst_mid2pulses, plt_Cyp_cst_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Cyp_cst_2pulses, device = "png", filename = "img/plt_MFx_Cyp_cst_2pulses.png", width = 11, height = 7)
+ggsave(plot = plt_MFx_Cyp_cst_2pulses, device = "svg", filename = "img/plt_MFx_Cyp_cst_2pulses.svg", width = 11, height = 7)
+
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varSD_high2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Cyp_varIT_high2pulses.rda")
+
+plt_Cyp_var_low2pulses <- depuration_plot_SDandIT(predict_Cyp_varSD_low2pulses,
+                                                  predict_Cyp_varIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_varIT_low2pulses")
+plt_Cyp_var_mid2pulses <- depuration_plot_SDandIT(predict_Cyp_varSD_mid2pulses,
+                                                  predict_Cyp_varIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_varIT_mid2pulses")
+plt_Cyp_var_high2pulses <- depuration_plot_SDandIT(predict_Cyp_varSD_high2pulses,
+                                                  predict_Cyp_varIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 0.15,
+                                                  title = "Cyp_varIT_high2pulses")
+
+plt_MFx_Cyp_var_2pulses =  grid.arrange(plt_Cyp_var_low2pulses, plt_Cyp_var_mid2pulses, plt_Cyp_var_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Cyp_var_2pulses, device = "png", filename = "img/plt_MFx_Cyp_var_2pulses.png", width = 11, height = 7)
+ggsave(plot = plt_MFx_Cyp_var_2pulses, device = "svg", filename = "img/plt_MFx_Cyp_var_2pulses.svg", width = 11, height = 7)
+```
+
+
+## Dim
+
+```{r}
+CONC_high = max(fit_Dim_cstSD_MORSE$original.data$conc)/10
+# ###-------------------------------------------------------------------  Dim_cstSD
+## low%
+predict_Dim_cstSD_low2pulses <- depuration_df(x = fit_Dim_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Dim_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Dim_cstSD_low2pulses.rda")
+## mid%
+predict_Dim_cstSD_mid2pulses <- depuration_df(x = fit_Dim_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Dim_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Dim_cstSD_mid2pulses.rda")
+## high%
+predict_Dim_cstSD_high2pulses <- depuration_df(x = fit_Dim_cstSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Dim_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Dim_cstSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Dim_cstIT
+
+## low%
+predict_Dim_cstIT_low2pulses <- depuration_df(x = fit_Dim_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Dim_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Dim_cstIT_low2pulses.rda")
+## mid%
+predict_Dim_cstIT_mid2pulses <- depuration_df(x = fit_Dim_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Dim_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Dim_cstIT_mid2pulses.rda")
+## high%
+predict_Dim_cstIT_high2pulses <- depuration_df(x = fit_Dim_cstIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Dim_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Dim_cstIT_high2pulses.rda")
+
+
+
+###-------------------------------------------------------------------  Dim_varSD
+
+## low%
+predict_Dim_varSD_low2pulses <- depuration_df(x = fit_Dim_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Dim_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Dim_varSD_low2pulses.rda")
+## mid%
+predict_Dim_varSD_mid2pulses <- depuration_df(x = fit_Dim_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Dim_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Dim_varSD_mid2pulses.rda")
+## high%
+predict_Dim_varSD_high2pulses <- depuration_df(x = fit_Dim_varSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Dim_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Dim_varSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Dim_varIT
+
+## low%
+predict_Dim_varIT_low2pulses <- depuration_df(x = fit_Dim_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Dim_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Dim_varIT_low2pulses.rda")
+## mid%
+predict_Dim_varIT_mid2pulses <- depuration_df(x = fit_Dim_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Dim_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Dim_varIT_mid2pulses.rda")
+## high%
+predict_Dim_varIT_high2pulses <- depuration_df(x = fit_Dim_varIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Dim_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Dim_varIT_high2pulses.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstSD_high2pulses.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_cstIT_high2pulses.rda")
+
+plt_Dim_cst_low2pulses <- depuration_plot_SDandIT(predict_Dim_cstSD_low2pulses,
+                                                  predict_Dim_cstIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1.5e4,
+                                                  title = "Dim_cstIT_low2pulses")
+plt_Dim_cst_mid2pulses <- depuration_plot_SDandIT(predict_Dim_cstSD_mid2pulses,
+                                                  predict_Dim_cstIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 1.5e4,
+                                                  title = "Dim_cstIT_mid2pulses")
+plt_Dim_cst_high2pulses <- depuration_plot_SDandIT(predict_Dim_cstSD_high2pulses,
+                                                  predict_Dim_cstIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1.5e4,
+                                                  title = "Dim_cstIT_high2pulses")
+
+plt_MFx_Dim_cst_2pulses =  grid.arrange(plt_Dim_cst_low2pulses, plt_Dim_cst_mid2pulses, plt_Dim_cst_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Dim_cst_2pulses, device = "png", filename = "img/plt_MFx_Dim_cst_2pulses.png", width = 11, height = 7)
+
+
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Dim_varSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varSD_high2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Dim_varIT_high2pulses.rda")
+
+plt_Dim_var_low2pulses <- depuration_plot_SDandIT(predict_Dim_varSD_low2pulses,
+                                                  predict_Dim_varIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1.5e4,
+                                                  title = "Dim_varIT_low2pulses")
+plt_Dim_var_mid2pulses <- depuration_plot_SDandIT(predict_Dim_varSD_mid2pulses,
+                                                  predict_Dim_varIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 1.5e4,
+                                                  title = "Dim_varIT_mid2pulses")
+plt_Dim_var_high2pulses <- depuration_plot_SDandIT(predict_Dim_varSD_high2pulses,
+                                                  predict_Dim_varIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 1.5e4,
+                                                  title = "Dim_varIT_high2pulses")
+
+plt_MFx_Dim_var_2pulses =  grid.arrange(plt_Dim_var_low2pulses, plt_Dim_var_mid2pulses, plt_Dim_var_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Dim_var_2pulses, device = "png", filename = "img/plt_MFx_Dim_var_2pulses.png", width = 11, height = 7)
+```
+
+
+## Mal
+
+```{r}
+CONC_high =  max(fit_Mal_cstSD_MORSE$original.data$conc)/1
+
+###-------------------------------------------------------------------  Mal_cstSD
+## low%
+predict_Mal_cstSD_low2pulses <- depuration_df(x = fit_Mal_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Mal_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Mal_cstSD_low2pulses.rda")
+## mid%
+predict_Mal_cstSD_mid2pulses <- depuration_df(x = fit_Mal_cstSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Mal_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Mal_cstSD_mid2pulses.rda")
+## high%
+predict_Mal_cstSD_high2pulses <- depuration_df(x = fit_Mal_cstSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Mal_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Mal_cstSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Mal_cstIT
+
+## low%
+predict_Mal_cstIT_low2pulses <- depuration_df(x = fit_Mal_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Mal_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Mal_cstIT_low2pulses.rda")
+## mid%
+predict_Mal_cstIT_mid2pulses <- depuration_df(x = fit_Mal_cstIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Mal_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Mal_cstIT_mid2pulses.rda")
+## high%
+predict_Mal_cstIT_high2pulses <- depuration_df(x = fit_Mal_cstIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Mal_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Mal_cstIT_high2pulses.rda")
+
+
+
+###-------------------------------------------------------------------  Mal_varSD
+
+## low%
+predict_Mal_varSD_low2pulses <- depuration_df(x = fit_Mal_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Mal_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_Mal_varSD_low2pulses.rda")
+## mid%
+predict_Mal_varSD_mid2pulses <- depuration_df(x = fit_Mal_varSD_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "SD")
+save(predict_Mal_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_Mal_varSD_mid2pulses.rda")
+## high%
+predict_Mal_varSD_high2pulses <- depuration_df(x = fit_Mal_varSD_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "SD")
+save(predict_Mal_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_Mal_varSD_high2pulses.rda")
+
+###-------------------------------------------------------------------  Mal_varIT
+
+## low%
+predict_Mal_varIT_low2pulses <- depuration_df(x = fit_Mal_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 0.5,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Mal_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_Mal_varIT_low2pulses.rda")
+## mid%
+predict_Mal_varIT_mid2pulses <- depuration_df(x = fit_Mal_varIT_MORSE, pulse = 2,
+                                              Maximal_conc = CONC_high,
+                                              recovery_time = 2,
+                                              draws = 1000,
+                                              max_time = 10,
+                                              model_type = "IT")
+save(predict_Mal_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_Mal_varIT_mid2pulses.rda")
+## high%
+predict_Mal_varIT_high2pulses <- depuration_df(x = fit_Mal_varIT_MORSE, pulse = 2,
+                                               Maximal_conc = CONC_high,
+                                               recovery_time = 7,
+                                               draws = 1000,
+                                               max_time = 10,
+                                               model_type = "IT")
+save(predict_Mal_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_Mal_varIT_high2pulses.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstSD_high2pulses.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_cstIT_high2pulses.rda")
+
+plt_Mal_cst_low2pulses <- depuration_plot_SDandIT(predict_Mal_cstSD_low2pulses,
+                                                  predict_Mal_cstIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2,
+                                                  title = "Mal_cstIT_low2pulses")
+plt_Mal_cst_mid2pulses <- depuration_plot_SDandIT(predict_Mal_cstSD_mid2pulses,
+                                                  predict_Mal_cstIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2,
+                                                  title = "Mal_cstIT_mid2pulses")
+plt_Mal_cst_high2pulses <- depuration_plot_SDandIT(predict_Mal_cstSD_high2pulses,
+                                                  predict_Mal_cstIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2,
+                                                  title = "Mal_cstIT_high2pulses")
+
+plt_MFx_Mal_cst_2pulses =  grid.arrange(plt_Mal_cst_low2pulses, plt_Mal_cst_mid2pulses, plt_Mal_cst_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Mal_cst_2pulses, device = "png", filename = "img/plt_MFx_Mal_cst_2pulses.png", width = 11, height = 7)
+
+
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_Mal_varSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varSD_high2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_Mal_varIT_high2pulses.rda")
+
+plt_Mal_var_low2pulses <- depuration_plot_SDandIT(predict_Mal_varSD_low2pulses,
+                                                  predict_Mal_varIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2,
+                                                  title = "Mal_varIT_low2pulses")
+plt_Mal_var_mid2pulses <- depuration_plot_SDandIT(predict_Mal_varSD_mid2pulses,
+                                                  predict_Mal_varIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 2,
+                                                  title = "Mal_varIT_mid2pulses")
+plt_Mal_var_high2pulses <- depuration_plot_SDandIT(predict_Mal_varSD_high2pulses,
+                                                  predict_Mal_varIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 2,
+                                                  title = "Mal_varIT_high2pulses")
+
+plt_MFx_Mal_var_2pulses =  grid.arrange(plt_Mal_var_low2pulses, plt_Mal_var_mid2pulses, plt_Mal_var_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_Mal_var_2pulses, device = "png", filename = "img/plt_MFx_Mal_var_2pulses.png", width = 11, height = 7)
+```
+
+
+## PRZ
+
+```{r}
+CONC_high = max(fit_PRZ_cstSD_MORSE$original.data$conc)/1
+
+# ###-------------------------------------------------------------------  PRZ_cstSD
+# ## low%
+# predict_PRZ_cstSD_low2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 0.5,
+#                                               draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_PRZ_cstSD_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_low2pulses.rda")
+# ## mid%
+# predict_PRZ_cstSD_mid2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 2,
+#                                                draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_PRZ_cstSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_mid2pulses.rda")
+# # high%
+# predict_PRZ_cstSD_high2pulses <- depuration_df(x = fit_PRZ_cstSD_MORSE, pulse = 2,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7,
+#                                                 draws = 1000,
+#                                                max_time = 10,
+#                                                model_type = "SD",
+#                                                draws = 4000)
+# save(predict_PRZ_cstSD_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_high2pulses.rda")
+# 
+# ###-------------------------------------------------------------------  PRZ_cstIT
+# 
+# ## low%
+# predict_PRZ_cstIT_low2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 0.5,
+#                                                draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_PRZ_cstIT_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_low2pulses.rda")
+# ## mid%
+# predict_PRZ_cstIT_mid2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 2,
+#                                                draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_PRZ_cstIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_mid2pulses.rda")
+# ## high%
+# predict_PRZ_cstIT_high2pulses <- depuration_df(x = fit_PRZ_cstIT_MORSE, pulse = 2,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7,
+#                                               draws = 1000,
+#                                                max_time = 10,
+#                                                model_type = "IT")
+# save(predict_PRZ_cstIT_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_high2pulses.rda")
+# 
+# 
+# 
+# ###-------------------------------------------------------------------  PRZ_varSD
+# 
+# # low%
+# predict_PRZ_varSD_low2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 0.5,
+#                                                draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_PRZ_varSD_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_low2pulses.rda")
+# ## mid%
+# predict_PRZ_varSD_mid2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 2,
+#                                                draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "SD")
+# save(predict_PRZ_varSD_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_mid2pulses.rda")
+# ## high%
+# predict_PRZ_varSD_high2pulses <- depuration_df(x = fit_PRZ_varSD_MORSE, pulse = 2,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7,
+#                                                 draws = 1000,
+#                                                max_time = 10,
+#                                                model_type = "SD")
+# save(predict_PRZ_varSD_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varSD_high2pulses.rda")
+# 
+# ###-------------------------------------------------------------------  PRZ_varIT
+# 
+# ## low%
+# predict_PRZ_varIT_low2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 0.5,
+#                                                draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_PRZ_varIT_low2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_low2pulses.rda")
+# ## mid%
+# predict_PRZ_varIT_mid2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
+#                                               Maximal_conc = CONC_high,
+#                                               recovery_time = 2,
+#                                                draws = 1000,
+#                                               max_time = 10,
+#                                               model_type = "IT")
+# save(predict_PRZ_varIT_mid2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_mid2pulses.rda")
+# ## high%
+# predict_PRZ_varIT_high2pulses <- depuration_df(x = fit_PRZ_varIT_MORSE, pulse = 2,
+#                                                Maximal_conc = CONC_high,
+#                                                recovery_time = 7,
+#                                                 draws = 1000,
+#                                                max_time = 10,
+#                                                model_type = "IT")
+# save(predict_PRZ_varIT_high2pulses, file = "Sensitivity_SIMULATION/predict_PRZ_varIT_high2pulses.rda")
+
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+###------------------------------------------------------------------- 
+### ------------------------------------------------------ PLOT cst
+
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstSD_high2pulses.rda")
+
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_cstIT_high2pulses.rda")
+
+plt_PRZ_cst_low2pulses <- depuration_plot_SDandIT(predict_PRZ_cstSD_low2pulses,
+                                                  predict_PRZ_cstIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 50,
+                                                  title = "PRZ_cstIT_low2pulses")
+plt_PRZ_cst_mid2pulses <- depuration_plot_SDandIT(predict_PRZ_cstSD_mid2pulses,
+                                                  predict_PRZ_cstIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 50,
+                                                  title = "PRZ_cstIT_mid2pulses")
+plt_PRZ_cst_high2pulses <- depuration_plot_SDandIT(predict_PRZ_cstSD_high2pulses,
+                                                  predict_PRZ_cstIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 50,
+                                                  title = "PRZ_cstIT_high2pulses")
+
+plt_MFx_PRZ_cst_2pulses =  grid.arrange(plt_PRZ_cst_low2pulses, plt_PRZ_cst_mid2pulses, plt_PRZ_cst_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_PRZ_cst_2pulses, device = "png", filename = "img/plt_MFx_PRZ_cst_2pulses.png", width = 11, height = 7)
+ggsave(plot = plt_MFx_PRZ_cst_2pulses, device = "png", filename = "img/plt_MFx_PRZ_cst_2pulses.png", width = 11, height = 7, dpi = 250)
+
+### ------------------------------------------------------ PLOT cst
+
+
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varSD_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varSD_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varSD_high2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varIT_low2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varIT_mid2pulses.rda")
+load(file = "Sensitivity_SIMULATION/predict_PRZ_varIT_high2pulses.rda")
+
+plt_PRZ_var_low2pulses <- depuration_plot_SDandIT(predict_PRZ_varSD_low2pulses,
+                                                  predict_PRZ_varIT_low2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 50,
+                                                  title = "PRZ_varIT_low2pulses")
+plt_PRZ_var_mid2pulses <- depuration_plot_SDandIT(predict_PRZ_varSD_mid2pulses,
+                                                  predict_PRZ_varIT_mid2pulses,
+                                                  conc_max_CONC =  CONC_high,
+                                                  conc_max_INTCONC = 50,
+                                                  title = "PRZ_varIT_mid2pulses")
+plt_PRZ_var_high2pulses <- depuration_plot_SDandIT(predict_PRZ_varSD_high2pulses,
+                                                  predict_PRZ_varIT_high2pulses,
+                                                  conc_max_CONC = CONC_high,
+                                                  conc_max_INTCONC = 50,
+                                                  title = "PRZ_varIT_high2pulses")
+
+plt_MFx_PRZ_var_2pulses =  grid.arrange(plt_PRZ_var_low2pulses, plt_PRZ_var_mid2pulses, plt_PRZ_var_high2pulses, ncol=3)
+
+ggsave(plot = plt_MFx_PRZ_var_2pulses, device = "png", filename = "img/plt_MFx_PRZ_var_2pulses.png", width = 11, height = 7)
+```
+
+
+
+# SAVE png
+
+```{r}
+# AUC
+ggsave(plot = plt_MFx_Car_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Car_cst_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Cyp_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Cyp_cst_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Dim_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Dim_cst_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Mal_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_Mal_cst_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_PRZ_cst_RTeqAUC, device = "png", filename = "img/plt_MFx_PRZ_cst_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+
+ggsave(plot = plt_MFx_Car_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Car_var_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Cyp_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Cyp_var_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Dim_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Dim_var_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Mal_var_RTeqAUC, device = "png", filename = "img/plt_MFx_Mal_var_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_PRZ_var_RTeqAUC, device = "png", filename = "img/plt_MFx_PRZ_var_RTeqAUC.png", width = 11, height = 7, dpi = 250)
+
+# 2 pulses
+ggsave(plot = plt_MFx_Car_cst_2pulses, device = "png", filename = "img/plt_MFx_Car_cst_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Cyp_cst_2pulses, device = "png", filename = "img/plt_MFx_Cyp_cst_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Dim_cst_2pulses, device = "png", filename = "img/plt_MFx_Dim_cst_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Mal_cst_2pulses, device = "png", filename = "img/plt_MFx_Mal_cst_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_PRZ_cst_2pulses, device = "png", filename = "img/plt_MFx_PRZ_cst_2pulses.png", width = 11, height = 7, dpi = 250)
+
+ggsave(plot = plt_MFx_Car_var_2pulses, device = "png", filename = "img/plt_MFx_Car_var_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Cyp_var_2pulses, device = "png", filename = "img/plt_MFx_Cyp_var_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Dim_var_2pulses, device = "png", filename = "img/plt_MFx_Dim_var_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_Mal_var_2pulses, device = "png", filename = "img/plt_MFx_Mal_var_2pulses.png", width = 11, height = 7, dpi = 250)
+ggsave(plot = plt_MFx_PRZ_var_2pulses, device = "png", filename = "img/plt_MFx_PRZ_var_2pulses.png", width = 11, height = 7, dpi = 250)
+```
+
+
+# LCx
+
+### Explicit formula of LCx
+
+```{r}
+# ---------- LCx SD
+# LCx_SD <- function(x,
+#                    X_prop = NULL,
+#                    time_LCx = NULL){
+#   
+#   mctot <- do.call("rbind", x$mcmc)
+# 
+#   kd = 10^mctot[, "kd_log10"]
+#   hb = 10^mctot[, "hb_log10"]
+#   
+#   if(x$model_type == "SD"){
+#     z <- 10^mctot[, "z_log10"]
+#     kk <- 10^mctot[, "kk_log10"]
+#   }
+#   if(x$model_type == "IT"){
+#     alpha <- 10^mctot[, "alpha_log10"]
+#     beta <- 10^mctot[, "beta_log10"]
+#   }
+#   
+#   X_vec = rep(100*X_prop, length(kd))
+#   
+#   t = time_LCx
+#   tz = ...
+# }
+
+# --------- LCx IT
+LCx_explicit_IT <- function(x,
+                   X_prop = NULL,
+                   time_LCx = NULL){
+  
+  mctot <- do.call("rbind", x$mcmc)
+
+  kd = 10^mctot[, "kd_log10"]
+  hb = 10^mctot[, "hb_log10"]
+  
+  if(x$model_type == "SD"){
+    z <- 10^mctot[, "z_log10"]
+    kk <- 10^mctot[, "kk_log10"]
+  }
+  if(x$model_type == "IT"){
+    alpha <- 10^mctot[, "alpha_log10"]
+    beta <- 10^mctot[, "beta_log10"]
+  }
+  
+  X_vec = rep(100*X_prop, length(kd))
+  
+  df_LCx <- alpha/(1- exp(-kd %*% t(time_LCx))) * (X_vec/(100-X_vec))^(1/beta)
+  
+  df_LCx_quantiles <- data.frame(
+    q50 = apply(df_LCx, 2, quantile, probs =  0.5),
+    qinf95 = apply(df_LCx, 2, quantile, probs =  0.025),
+    qsup95 = apply(df_LCx, 2, quantile, probs =  0.975),
+    time = time_LCx)
+
+  return(df_LCx_quantiles)
+}
+```
+
+
+### LC50 end of experiment
+
+```{r}
+# cst -------------------------------------------------------------------------
+LC50_Car_cstSD <- morse::LCx(fit_Car_cstSD_MORSE, X = 50)
+LC50_Cyp_cstSD <- morse::LCx(fit_Cyp_cstSD_MORSE, X = 50)
+LC50_Dim_cstSD <- morse::LCx(fit_Dim_cstSD_MORSE, X = 50)
+LC50_Mal_cstSD <- morse::LCx(fit_Mal_cstSD_MORSE, X = 50)
+LC50_PRZ_cstSD <- morse::LCx(fit_PRZ_cstSD_MORSE, X = 50)
+
+
+LC50_Car_cstIT <- morse::LCx(fit_Car_cstIT_MORSE, X = 50)
+LC50_Cyp_cstIT <- morse::LCx(fit_Cyp_cstIT_MORSE, X = 50)
+LC50_Dim_cstIT <- morse::LCx(fit_Dim_cstIT_MORSE, X = 50)
+LC50_Mal_cstIT <- morse::LCx(fit_Mal_cstIT_MORSE, X = 50)
+LC50_PRZ_cstIT <- morse::LCx(fit_PRZ_cstIT_MORSE, X = 50)
+
+# var -------------------------------------------------------------------------
+
+LC50_Car_varSD <- morse::LCx(fit_Car_varSD_MORSE, X = 50, conc_range = c(0, max(fit_Car_varSD_MORSE$original.data$conc, na.rm=T)))
+LC50_Cyp_varSD <- morse::LCx(fit_Cyp_varSD_MORSE, X = 50, conc_range = c(0, max(fit_Cyp_varSD_MORSE$original.data$conc, na.rm=T)))
+LC50_Dim_varSD <- morse::LCx(fit_Dim_varSD_MORSE, X = 50, conc_range = c(0, max(fit_Dim_varSD_MORSE$original.data$conc, na.rm=T)))
+LC50_Mal_varSD <- morse::LCx(fit_Mal_varSD_MORSE, X = 50, conc_range = c(0, max(fit_Mal_varSD_MORSE$original.data$conc, na.rm=T)))
+#LCx_PRZ_varSD <- morse::LCx(fit_PRZ_varSD_MORSE, X = 50,  conc_range = c(0, max(fit_PRZ_varSD_MORSE$original.data$conc, na.rm=T)))
+LC50_PRZ_varSD <- morse::LCx(fit_PRZ_varSD_MORSE, X = 50,  conc_range = c(0, 150))
+
+LC50_Car_varIT <- morse::LCx(fit_Car_varIT_MORSE, X = 50,  conc_range = c(0, max(fit_Car_varIT_MORSE$original.data$conc, na.rm=T)))
+LC50_Cyp_varIT <- morse::LCx(fit_Cyp_varIT_MORSE, X = 50, conc_range = c(0, max(fit_Cyp_varIT_MORSE$original.data$conc, na.rm=T)))
+#LCx_Dim_varIT <- morse::LCx(fit_Dim_varIT_MORSE, X = 50, conc_range = c(0, max(fit_Dim_varIT_MORSE$original.data$conc, na.rm=T)))
+LC50_Dim_varIT <- morse::LCx(fit_Dim_varIT_MORSE, X = 50, conc_range = c(0, 1e5))
+LC50_Mal_varIT <- morse::LCx(fit_Mal_varIT_MORSE, X = 50, conc_range = c(0, max(fit_Mal_varIT_MORSE$original.data$conc, na.rm=T)))
+#LCx_PRZ_varIT <- morse::LCx(fit_PRZ_varIT_MORSE, X = 50,  conc_range = c(0, max(fit_PRZ_varIT_MORSE$original.data$conc, na.rm=T)))
+LC50_PRZ_varIT <- morse::LCx(fit_PRZ_varIT_MORSE, X = 50,  conc_range = c(0, 150))
+
+```
+
+
+```{r}
+plt_LC50_Car <- gridExtra::grid.arrange(plot(LC50_Car_cstSD, subtitle = "Car_cstSD"),
+                                        plot(LC50_Car_cstIT, subtitle = "Car_cstIT"),
+                                        plot(LC50_Car_varSD, subtitle = "Car_varSD"),
+                                        plot(LC50_Car_varIT, subtitle = "Car_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC50_Car, file = "img/plt_LC50_Car.png", width = 12, height = 8)
+
+plt_LC50_Cyp <- gridExtra::grid.arrange(plot(LC50_Cyp_cstSD, subtitle = "Cyp_cstSD"),
+                                        plot(LC50_Cyp_cstIT, subtitle = "Cyp_cstIT"),
+                                        plot(LC50_Cyp_varSD, subtitle = "Cyp_varSD"),
+                                        plot(LC50_Cyp_varIT, subtitle = "Cyp_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC50_Cyp, file = "img/plt_LC50_Cyp.png", width = 12, height = 8)
+
+
+plt_LC50_Dim <- gridExtra::grid.arrange(plot(LC50_Dim_cstSD, subtitle = "Dim_cstSD"),
+                                        plot(LC50_Dim_cstIT, subtitle = "Dim_cstIT"),
+                                        plot(LC50_Dim_varSD, subtitle = "Dim_varSD"),
+                                        plot(LC50_Dim_varIT, subtitle = "Dim_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC50_Dim, file = "img/plt_LC50_Dim.png", width = 12, height = 8)
+
+
+plt_LC50_Mal <- gridExtra::grid.arrange(plot(LC50_Mal_cstSD, subtitle = "Mal_cstSD"),
+                                        plot(LC50_Mal_cstIT, subtitle = "Mal_cstIT"),
+                                        plot(LC50_Mal_varSD, subtitle = "Mal_varSD"),
+                                        plot(LC50_Mal_varIT, subtitle = "Mal_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC50_Mal, file = "img/plt_LC50_Mal.png", width = 12, height = 8)
+
+plt_LC50_PRZ <- gridExtra::grid.arrange(plot(LC50_PRZ_cstSD, subtitle = "PRZ_cstSD"),
+                                        plot(LC50_PRZ_cstIT, subtitle = "PRZ_cstIT"),
+                                        plot(LC50_PRZ_varSD, subtitle = "PRZ_varSD"),
+                                        plot(LC50_PRZ_varIT, subtitle = "PRZ_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC50_PRZ, file = "img/plt_LC50_PRZ.png", width = 12, height = 8)
+```
+
+### LC10 end of experiment
+
+```{r}
+# cst -------------------------------------------------------------------------
+LC10_Car_cstSD <- morse::LCx(fit_Car_cstSD_MORSE, X = 10)
+LC10_Cyp_cstSD <- morse::LCx(fit_Cyp_cstSD_MORSE, X = 10)
+LC10_Dim_cstSD <- morse::LCx(fit_Dim_cstSD_MORSE, X = 10)
+LC10_Mal_cstSD <- morse::LCx(fit_Mal_cstSD_MORSE, X = 10)
+LC10_PRZ_cstSD <- morse::LCx(fit_PRZ_cstSD_MORSE, X = 10)
+
+
+LC10_Car_cstIT <- morse::LCx(fit_Car_cstIT_MORSE, X = 10)
+LC10_Cyp_cstIT <- morse::LCx(fit_Cyp_cstIT_MORSE, X = 10)
+LC10_Dim_cstIT <- morse::LCx(fit_Dim_cstIT_MORSE, X = 10)
+LC10_Mal_cstIT <- morse::LCx(fit_Mal_cstIT_MORSE, X = 10)
+LC10_PRZ_cstIT <- morse::LCx(fit_PRZ_cstIT_MORSE, X = 10)
+
+# var -------------------------------------------------------------------------
+
+LC10_Car_varSD <- morse::LCx(fit_Car_varSD_MORSE, X = 10, conc_range = c(0, max(fit_Car_varSD_MORSE$original.data$conc, na.rm=T)))
+LC10_Cyp_varSD <- morse::LCx(fit_Cyp_varSD_MORSE, X = 10, conc_range = c(0, max(fit_Cyp_varSD_MORSE$original.data$conc, na.rm=T)))
+LC10_Dim_varSD <- morse::LCx(fit_Dim_varSD_MORSE, X = 10, conc_range = c(0, max(fit_Dim_varSD_MORSE$original.data$conc, na.rm=T)))
+LC10_Mal_varSD <- morse::LCx(fit_Mal_varSD_MORSE, X = 10, conc_range = c(0, max(fit_Mal_varSD_MORSE$original.data$conc, na.rm=T)))
+#LCx_PRZ_varSD <- morse::LCx(fit_PRZ_varSD_MORSE, X = 10,  conc_range = c(0, max(fit_PRZ_varSD_MORSE$original.data$conc, na.rm=T)))
+LC10_PRZ_varSD <- morse::LCx(fit_PRZ_varSD_MORSE, X = 10,  conc_range = c(0, 110))
+
+LC10_Car_varIT <- morse::LCx(fit_Car_varIT_MORSE, X = 10,  conc_range = c(0, max(fit_Car_varIT_MORSE$original.data$conc, na.rm=T)))
+LC10_Cyp_varIT <- morse::LCx(fit_Cyp_varIT_MORSE, X = 10, conc_range = c(0, max(fit_Cyp_varIT_MORSE$original.data$conc, na.rm=T)))
+#LCx_Dim_varIT <- morse::LCx(fit_Dim_varIT_MORSE, X = 10, conc_range = c(0, max(fit_Dim_varIT_MORSE$original.data$conc, na.rm=T)))
+LC10_Dim_varIT <- morse::LCx(fit_Dim_varIT_MORSE, X = 10, conc_range = c(0, 1e5))
+LC10_Mal_varIT <- morse::LCx(fit_Mal_varIT_MORSE, X = 10, conc_range = c(0, max(fit_Mal_varIT_MORSE$original.data$conc, na.rm=T)))
+#LCx_PRZ_varIT <- morse::LCx(fit_PRZ_varIT_MORSE, X = 10,  conc_range = c(0, max(fit_PRZ_varIT_MORSE$original.data$conc, na.rm=T)))
+LC10_PRZ_varIT <- morse::LCx(fit_PRZ_varIT_MORSE, X = 10,  conc_range = c(0, 110))
+```
+
+
+```{r}
+plt_LC10_Car <- gridExtra::grid.arrange(plot(LC10_Car_cstSD, subtitle = "Car_cstSD"),
+                                        plot(LC10_Car_cstIT, subtitle = "Car_cstIT"),
+                                        plot(LC10_Car_varSD, subtitle = "Car_varSD"),
+                                        plot(LC10_Car_varIT, subtitle = "Car_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC10_Car, file = "img/plt_LC10_Car.png", width = 12, height = 8)
+
+plt_LC10_Cyp <- gridExtra::grid.arrange(plot(LC10_Cyp_cstSD, subtitle = "Cyp_cstSD"),
+                                        plot(LC10_Cyp_cstIT, subtitle = "Cyp_cstIT"),
+                                        plot(LC10_Cyp_varSD, subtitle = "Cyp_varSD"),
+                                        plot(LC10_Cyp_varIT, subtitle = "Cyp_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC10_Cyp, file = "img/plt_LC10_Cyp.png", width = 12, height = 8)
+
+
+plt_LC10_Dim <- gridExtra::grid.arrange(plot(LC10_Dim_cstSD, subtitle = "Dim_cstSD"),
+                                        plot(LC10_Dim_cstIT, subtitle = "Dim_cstIT"),
+                                        plot(LC10_Dim_varSD, subtitle = "Dim_varSD"),
+                                        plot(LC10_Dim_varIT, subtitle = "Dim_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC10_Dim, file = "img/plt_LC10_Dim.png", width = 12, height = 8)
+
+
+plt_LC10_Mal <- gridExtra::grid.arrange(plot(LC10_Mal_cstSD, subtitle = "Mal_cstSD"),
+                                        plot(LC10_Mal_cstIT, subtitle = "Mal_cstIT"),
+                                        plot(LC10_Mal_varSD, subtitle = "Mal_varSD"),
+                                        plot(LC10_Mal_varIT, subtitle = "Mal_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC10_Mal, file = "img/plt_LC10_Mal.png", width = 12, height = 8)
+
+plt_LC10_PRZ <- gridExtra::grid.arrange(plot(LC10_PRZ_cstSD, subtitle = "PRZ_cstSD"),
+                                        plot(LC10_PRZ_cstIT, subtitle = "PRZ_cstIT"),
+                                        plot(LC10_PRZ_varSD, subtitle = "PRZ_varSD"),
+                                        plot(LC10_PRZ_varIT, subtitle = "PRZ_varIT"),
+                                        ncol = 2  )
+ggsave(plt_LC10_PRZ, file = "img/plt_LC10_PRZ.png", width = 12, height = 8)
+```
+## LCx fct of time for SD and IT
+
+```{r}
+LCx_alongTime <- function(x, X1, X2, min_time, max_conc, length_out, npointsX1 = 100, npointsX2 = 100){
+  time_LCx_vec <- seq(min_time, max(x$original.data$time), length = length_out)
+  
+  df_LCx1 <- data.frame(time = time_LCx_vec,
+                       X_prop = rep(X1, length(time_LCx_vec)))
+  df_LCx2 <- data.frame(time = time_LCx_vec,
+                       X_prop = rep(X2, length(time_LCx_vec)))
+  
+  
+  if(x$model_type == "SD"){
+    for(i in 1: length(time_LCx_vec)){
+      morse_LCx <- morse::LCx(x, X = X1, conc_range = c(0, max_conc),  time_LCx = time_LCx_vec[i], npoints = npointsX1)$df_LCx[,2]
+      df_LCx1$median[i] <- morse_LCx[1]
+      df_LCx1$Qinf95[i] <- morse_LCx[2]
+      df_LCx1$Qsup95[i] <- morse_LCx[3]
+       morse_LCx <- morse::LCx(x, X = X2, conc_range = c(0, max_conc),  time_LCx = time_LCx_vec[i], npoints = npointsX2)$df_LCx[,2]
+      df_LCx2$median[i] <- morse_LCx[1]
+      df_LCx2$Qinf95[i] <- morse_LCx[2]
+      df_LCx2$Qsup95[i] <- morse_LCx[3]
+    }
+  } else{
+      morse_LCx <- LCx_explicit_IT(x, X_prop = X1/100, time_LCx = time_LCx_vec)
+      df_LCx1$median <- morse_LCx$q50
+      df_LCx1$Qinf95 <- morse_LCx$qinf95
+      df_LCx1$Qsup95 <- morse_LCx$qsup95
+      morse_LCx <-LCx_explicit_IT(x, X_prop = X2/100, time_LCx = time_LCx_vec)
+      df_LCx2$median <- morse_LCx$q50
+      df_LCx2$Qinf95 <- morse_LCx$qinf95
+      df_LCx2$Qsup95 <- morse_LCx$qsup95
+  }
+  
+  LCx_alongTime <- rbind(df_LCx1, df_LCx2) %>%
+    mutate(Qinf95 = ifelse(is.na(Qinf95) & !is.na(Qsup95), 0, Qinf95)) %>%
+    mutate(X_prop = paste("LC_",X_prop))
+  
+  return(LCx_alongTime)
+}
+
+plt_LCx_alongTime <- function(x, title = NULL){
+  plt <- ggplot(data = x) + theme_bw() + 
+  labs(x = "Time", y = expression(Concentration:~LC[x]), title = title) +
+  geom_ribbon(aes(x = time, ymin = Qinf95, ymax = Qsup95), fill = "lightgrey") + 
+  geom_line(aes(x = time, y = median), color = "orange") + 
+  facet_wrap(~ X_prop, scale = "free")
+  plt
+  return(plt)
+}
+
+# cst -----------------------------------------------------------------------------
+## SD
+
+
+#LCx_alongTime_Car_cstSD <- LCx_alongTime(x = fit_Car_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e4, length_out = 20, npointsX1 = 5e3) 
+# LCx_alongTime_Cyp_cstSD <- LCx_alongTime(x = fit_Cyp_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.5, length_out = 20)
+# LCx_alongTime_Dim_cstSD <- LCx_alongTime(x = fit_Dim_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 3e5, length_out = 20, npointsX1 = 1e3, npointsX2 = 1e3)
+# LCx_alongTime_Mal_cstSD <- LCx_alongTime(x = fit_Mal_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
+#LCx_alongTime_PRZ_cstSD <- LCx_alongTime(x = fit_PRZ_cstSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 100, length_out = 20, npointsX1 = 1e3)
+
+# save(LCx_alongTime_Car_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstSD.rda")
+# save(LCx_alongTime_Cyp_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstSD.rda")
+# save(LCx_alongTime_Dim_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstSD.rda")
+# save(LCx_alongTime_Mal_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstSD.rda")
+# save(LCx_alongTime_PRZ_cstSD, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstSD.rda")
+
+
+gridExtra::grid.arrange(
+  plt_LCx_alongTime(LCx_alongTime_Car_cstSD, "Car_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_Cyp_cstSD, "Cyp_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_Dim_cstSD, "Dim_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_Mal_cstSD, "Mal_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_PRZ_cstSD, "PRZ_cstSD"),
+  ncol = 2
+)
+
+## IT
+
+# LCx_alongTime_Car_cstIT <- LCx_alongTime(x = fit_Car_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e4, length_out = 20) 
+# LCx_alongTime_Cyp_cstIT <- LCx_alongTime(x = fit_Cyp_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.5, length_out = 20)
+# LCx_alongTime_Dim_cstIT <- LCx_alongTime(x = fit_Dim_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e5, length_out = 20)
+# LCx_alongTime_Mal_cstIT <- LCx_alongTime(x = fit_Mal_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
+# LCx_alongTime_PRZ_cstIT <- LCx_alongTime(x = fit_PRZ_cstIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 100, length_out = 20)
+# 
+# save(LCx_alongTime_Car_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstIT.rda")
+# save(LCx_alongTime_Cyp_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstIT.rda")
+# save(LCx_alongTime_Dim_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstIT.rda")
+# save(LCx_alongTime_Mal_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstIT.rda")
+# save(LCx_alongTime_PRZ_cstIT, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_cstIT.rda")
+
+plt_LCx_alongTime_Car_cstIT <-  plt_LCx_alongTime(LCx_alongTime_Car_cstIT, "Car_cstIT")
+plt_LCx_alongTime_Cyp_cstIT <-  plt_LCx_alongTime(LCx_alongTime_Cyp_cstIT, "Cyp_cstIT")
+plt_LCx_alongTime_Dim_cstIT <-  plt_LCx_alongTime(LCx_alongTime_Dim_cstIT, "Dim_cstIT")
+plt_LCx_alongTime_Mal_cstIT <-  plt_LCx_alongTime(LCx_alongTime_Mal_cstIT, "Mal_cstIT")
+plt_LCx_alongTime_PRZ_cstIT <-  plt_LCx_alongTime(LCx_alongTime_PRZ_cstIT, "PRZ_cstIT")
+
+gridExtra::grid.arrange(
+  plt_LCx_alongTime_Car_cstIT,
+  plt_LCx_alongTime_Cyp_cstIT,
+  plt_LCx_alongTime_Dim_cstIT,
+  plt_LCx_alongTime_Mal_cstIT,
+  plt_LCx_alongTime_PRZ_cstIT,
+  ncol = 2
+)
+
+
+# var -----------------------------------------------------------------------------
+## SD
+
+# LCx_alongTime_Car_varSD <- LCx_alongTime(x = fit_Car_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e4, length_out = 20, npointsX1 = 1e3) 
+# LCx_alongTime_Cyp_varSD <- LCx_alongTime(x = fit_Cyp_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 0.2, length_out = 20)
+# LCx_alongTime_Dim_varSD <- LCx_alongTime(x = fit_Dim_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e5, length_out = 20)
+#LCx_alongTime_Mal_varSD <- LCx_alongTime(x = fit_Mal_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20, npointsX1 = 1e3)
+# LCx_alongTime_PRZ_varSD <- LCx_alongTime(x = fit_PRZ_varSD_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 250, length_out = 20)
+# 
+# save(LCx_alongTime_Car_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varSD.rda")
+# save(LCx_alongTime_Cyp_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varSD.rda")
+# save(LCx_alongTime_Dim_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varSD.rda")
+# save(LCx_alongTime_Mal_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varSD.rda")
+# save(LCx_alongTime_PRZ_varSD, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varSD.rda")
+
+
+plt_LCx_alongTime_Car_varSD <-  plt_LCx_alongTime(LCx_alongTime_Car_varSD, "Car_varSD")
+plt_LCx_alongTime_Cyp_varSD <-  plt_LCx_alongTime(LCx_alongTime_Cyp_varSD, "Cyp_varSD")
+plt_LCx_alongTime_Dim_varSD <-  plt_LCx_alongTime(LCx_alongTime_Dim_varSD, "Dim_varSD")
+plt_LCx_alongTime_Mal_varSD <-  plt_LCx_alongTime(LCx_alongTime_Mal_varSD, "Mal_varSD")
+plt_LCx_alongTime_PRZ_varSD <-  plt_LCx_alongTime(LCx_alongTime_PRZ_varSD, "PRZ_varSD")
+
+gridExtra::grid.arrange(
+  plt_LCx_alongTime_Car_varSD,
+  plt_LCx_alongTime_Cyp_varSD,
+  plt_LCx_alongTime_Dim_varSD,
+  plt_LCx_alongTime_Mal_varSD,
+  plt_LCx_alongTime_PRZ_varSD,
+  ncol = 2
+)
+
+## IT
+# LCx_alongTime_Car_varIT <- LCx_alongTime(x = fit_Car_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2e4, length_out = 20) 
+# LCx_alongTime_Cyp_varIT <- LCx_alongTime(x = fit_Cyp_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 2, length_out = 20)
+# LCx_alongTime_Dim_varIT <- LCx_alongTime(x = fit_Dim_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e6, length_out = 20)
+# LCx_alongTime_Mal_varIT <- LCx_alongTime(x = fit_Mal_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 20, length_out = 20)
+# LCx_alongTime_PRZ_varIT <- LCx_alongTime(x = fit_PRZ_varIT_MORSE, X1 = 10, X2 = 50, min_time = 1, max_conc = 1e3, length_out = 20)
+# 
+# save(LCx_alongTime_Car_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varIT.rda")
+# save(LCx_alongTime_Cyp_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varIT.rda")
+# save(LCx_alongTime_Dim_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varIT.rda")
+# save(LCx_alongTime_Mal_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varIT.rda")
+# save(LCx_alongTime_PRZ_varIT, file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Car_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Cyp_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Dim_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_Mal_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongTime_PRZ_varIT.rda")
+
+plt_LCx_alongTime_Car_varIT <-  plt_LCx_alongTime(LCx_alongTime_Car_varIT, "Car_varIT")
+plt_LCx_alongTime_Cyp_varIT <-  plt_LCx_alongTime(LCx_alongTime_Cyp_varIT, "Cyp_varIT")
+plt_LCx_alongTime_Dim_varIT <-  plt_LCx_alongTime(LCx_alongTime_Dim_varIT, "Dim_varIT")
+plt_LCx_alongTime_Mal_varIT <-  plt_LCx_alongTime(LCx_alongTime_Mal_varIT, "Mal_varIT")
+plt_LCx_alongTime_PRZ_varIT <-  plt_LCx_alongTime(LCx_alongTime_PRZ_varIT, "PRZ_varIT")
+
+gridExtra::grid.arrange(
+  plt_LCx_alongTime_Car_varIT,
+  plt_LCx_alongTime_Cyp_varIT,
+  plt_LCx_alongTime_Dim_varIT,
+  plt_LCx_alongTime_Mal_varIT,
+  plt_LCx_alongTime_PRZ_varIT,
+  ncol = 2
+)
+```
+
+```{r}
+plt_LCx_alongTime <- function(x){
+  plt <- ggplot(data = x) + theme_bw() + 
+  labs(x = "Time", y = expression(Concentration:~LC[x])) +
+  geom_ribbon(aes(x = time, ymin = Qinf95, ymax = Qsup95), fill = "lightgrey") + 
+  geom_line(aes(x = time, y = median), color = "orange") + 
+  facet_wrap(~ X_prop, scale = "free")
+  plt
+  return(plt)
+}
+```
+
+
+```{r}
+plt_LCx_alongTime_Car = arrangeGrob(
+  plt_LCx_alongTime(LCx_alongTime_Car_cstSD) + ggtitle("Car_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_Car_cstIT) + ggtitle("Car_cstIT"),
+  plt_LCx_alongTime(LCx_alongTime_Car_varSD) + ggtitle("Car_varSD"),
+  plt_LCx_alongTime(LCx_alongTime_Car_varIT) + ggtitle("Car_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongTime_Car.png", plt_LCx_alongTime_Car, width = 9, height = 9, dpi = 250) #saves g
+
+
+plt_LCx_alongTime_Cyp = arrangeGrob(
+  plt_LCx_alongTime(LCx_alongTime_Cyp_cstSD) + ggtitle("Cyp_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_Cyp_cstIT) + ggtitle("Cyp_cstIT"),
+  plt_LCx_alongTime(LCx_alongTime_Cyp_varSD) + ggtitle("Cyp_varSD"),
+  plt_LCx_alongTime(LCx_alongTime_Cyp_varIT) + ggtitle("Cyp_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongTime_Cyp.png", plt_LCx_alongTime_Cyp, width = 9, height = 9, dpi = 250) #saves g
+
+plt_LCx_alongTime_Dim = arrangeGrob(
+  plt_LCx_alongTime(LCx_alongTime_Dim_cstSD) + ggtitle("Dim_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_Dim_cstIT) + ggtitle("Dim_cstIT"),
+  plt_LCx_alongTime(LCx_alongTime_Dim_varSD) + ggtitle("Dim_varSD"),
+  plt_LCx_alongTime(LCx_alongTime_Dim_varIT) + ggtitle("Dim_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongTime_Dim.png", plt_LCx_alongTime_Dim, width = 9, height = 9, dpi = 250) #saves g
+
+plt_LCx_alongTime_Mal = arrangeGrob(
+  plt_LCx_alongTime(LCx_alongTime_Mal_cstSD) + ggtitle("Mal_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_Mal_cstIT) + ggtitle("Mal_cstIT"),
+  plt_LCx_alongTime(LCx_alongTime_Mal_varSD) + ggtitle("Mal_varSD"),
+  plt_LCx_alongTime(LCx_alongTime_Mal_varIT) + ggtitle("Mal_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongTime_Mal.png", plt_LCx_alongTime_Mal, width = 9, height = 9, dpi = 250) #saves g
+
+plt_LCx_alongTime_PRZ = arrangeGrob(
+  plt_LCx_alongTime(LCx_alongTime_PRZ_cstSD) + ggtitle("PRZ_cstSD"),
+  plt_LCx_alongTime(LCx_alongTime_PRZ_cstIT) + ggtitle("PRZ_cstIT"),
+  plt_LCx_alongTime(LCx_alongTime_PRZ_varSD) + ggtitle("PRZ_varSD"),
+  plt_LCx_alongTime(LCx_alongTime_PRZ_varIT) + ggtitle("PRZ_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongTime_PRZ.png", plt_LCx_alongTime_PRZ, width = 9, height = 9, dpi = 250) #saves g
+```
+
+
+
+### Plot SD vs IT
+
+```{r}
+# CST
+df_IT_cst <- dplyr::bind_rows(mutate(LCx_alongTime_Car_cstIT, model_type = "IT", compound = "Car"),
+                              mutate(LCx_alongTime_Cyp_cstIT, model_type = "IT", compound = "Cyp"),
+                              mutate(LCx_alongTime_Dim_cstIT, model_type = "IT", compound = "Dim"),
+                              mutate(LCx_alongTime_Mal_cstIT, model_type = "IT", compound = "Mal"),
+                              mutate(LCx_alongTime_PRZ_cstIT, model_type = "IT", compound = "PRZ"))
+
+df_SD_cst <- dplyr::bind_rows(mutate(LCx_alongTime_Car_cstSD, model_type = "SD", compound = "Car"),
+                              mutate(LCx_alongTime_Cyp_cstSD, model_type = "SD", compound = "Cyp"),
+                              mutate(LCx_alongTime_Dim_cstSD, model_type = "SD", compound = "Dim"),
+                              mutate(LCx_alongTime_Mal_cstSD, model_type = "SD", compound = "Mal"),
+                              mutate(LCx_alongTime_PRZ_cstSD, model_type = "SD", compound = "PRZ"))
+
+df_ITandSD_cst <- dplyr::bind_rows(df_IT_cst, df_SD_cst)
+
+
+df_ITandSD_cst$model_type <- factor(df_ITandSD_cst$model_type, levels=c("SD","IT") )
+
+ggplot(data = df_ITandSD_cst) + theme_minimal() +
+  labs(x = "Time", y = expression(Concentration:~LC[x]), title = "constant") +
+  geom_line(aes(x = time, y = median,
+                group = interaction(model_type, X_prop, compound  ), linetype = model_type)) +
+  geom_line(aes(x = time, y = Qinf95,
+                group = interaction(model_type, X_prop, compound ), linetype = model_type), color = "grey") +
+  geom_line(aes(x = time, y = Qsup95,
+                group = interaction(model_type, X_prop, compound  ), linetype = model_type), color = "grey") +
+  facet_wrap(compound ~ X_prop, scale = "free", ncol =2)  
+
+# VAR
+df_IT_var <- dplyr::bind_rows(mutate(LCx_alongTime_Car_varIT, model_type = "IT", compound = "Car"),
+                              mutate(LCx_alongTime_Cyp_varIT, model_type = "IT", compound = "Cyp"),
+                              mutate(LCx_alongTime_Dim_varIT, model_type = "IT", compound = "Dim"),
+                              mutate(LCx_alongTime_Mal_varIT, model_type = "IT", compound = "Mal"),
+                              mutate(LCx_alongTime_PRZ_varIT, model_type = "IT", compound = "PRZ"))
+
+df_SD_var <- dplyr::bind_rows(mutate(LCx_alongTime_Car_varSD, model_type = "SD", compound = "Car"),
+                              mutate(LCx_alongTime_Cyp_varSD, model_type = "SD", compound = "Cyp"),
+                              mutate(LCx_alongTime_Dim_varSD, model_type = "SD", compound = "Dim"),
+                              mutate(LCx_alongTime_Mal_varSD, model_type = "SD", compound = "Mal"),
+                              mutate(LCx_alongTime_PRZ_varSD, model_type = "SD", compound = "PRZ"))
+
+df_ITandSD_var <- dplyr::bind_rows(df_IT_var, df_SD_var) %>%
+  filter(time <=10)
+
+df_ITandSD_var$model_type <- factor(df_ITandSD_var$model_type, levels=c("SD","IT") )
+
+ggplot(data = df_ITandSD_var) + theme_minimal() +
+  labs(x = "Time", y = expression(Concentration:~LC[x]), title = "variable") +
+  #scale_y_log10() +
+  geom_line(aes(x = time, y = median,
+                group = interaction(model_type, X_prop, compound ), linetype = model_type)) +
+  geom_line(aes(x = time, y = Qinf95,
+                group = interaction(model_type, X_prop, compound ), linetype = model_type), color = "grey") +
+  geom_line(aes(x = time, y = Qsup95,
+                group = interaction(model_type, X_prop, compound ), linetype = model_type), color = "grey") +
+  facet_wrap(compound ~ X_prop, scale = "free", ncol = 2)  
+
+
+```
+
+### Plot manuscript: Cyp
+
+```{r}
+density_plot = function(fit_IT, fit_SD, title){
+    alpha = 10^do.call("rbind", fit_IT$mcmc)[, "alpha_log10"]
+    z = 10^do.call("rbind", fit_SD$mcmc)[, "z_log10"]
+    
+    ggplot() + theme_minimal() +
+    labs( x= "Time", y = "LCx", title = title) +
+    scale_x_continuous(limits = c(0,0.1)) +
+    # alpha and z
+    geom_density(aes(alpha), fill = "grey80", alpha = 0.5, color = "grey30", linetype = 2, size = 0.7) +
+    geom_density(aes(z), fill = "grey80", alpha = 0.5, color = "grey30", size = 0.7) 
+  
+}
+
+plot_LCx_alongTime <- function(x_IT, x_SD, title, linesize = 0.7){
+  
+    x_IT = filter(x_IT, X_prop == "LC_ 50")
+    x_SD = filter(x_SD, X_prop == "LC_ 50")
+  
+    ggplot() + theme_bw() +
+    labs( x= "Time", y = "LCx", title = title) +
+    scale_x_continuous(breaks = min(x_IT$time):max(x_IT$time)) +
+    scale_y_continuous(limits = c(0,max(x_IT$Qsup95, x_SD$Qsup95))) + 
+    # Ribbon
+    geom_ribbon(data = x_SD,
+                aes(x = time, ymin = Qinf95, ymax = Qsup95), fill = "grey80", alpha = 0.5) +
+    geom_ribbon(data = x_IT,
+                aes(x = time, ymin = Qinf95, ymax = Qsup95), fill = "grey80", alpha = 0.5) +
+    # SD
+    geom_line(data = x_SD,
+      aes( x = time, y = Qinf95), color = "grey30", size = linesize) +
+    geom_line(data = x_SD,
+      aes( x = time, y = Qsup95), color = "grey30", size = linesize) +
+    geom_line(data = x_SD,
+      aes( x = time, y = median), size = linesize) +
+    # IT
+    geom_line(data = x_IT,
+      aes( x = time, y = Qinf95), color = "grey30", linetype = 2, size = linesize) +
+    geom_line(data = x_IT,
+      aes( x = time, y = Qsup95), color = "grey30", linetype = 2, size = linesize) +
+    geom_line(data = x_IT,
+      aes( x = time, y = median), linetype = 2, size = linesize)
+}
+
+
+plt_alongTime_CypCst <- plot_LCx_alongTime(LCx_alongTime_Cyp_cstIT, LCx_alongTime_Cyp_cstSD, title = "Cyp_cst")
+plt_alongTime_CypCst
+ggsave(plt_alongTime_CypCst, file = "img/plt_alongTime_CypCst.svg", width = 4, height = 4)
+
+density_alpha_z_cstCyp <- density_plot(fit_SD = fit_Cyp_cstSD_MORSE, fit_IT = fit_Cyp_cstIT_MORSE, title = "density_alpha_z_cstCyp")
+density_alpha_z_cstCyp
+ggsave(density_alpha_z_cstCyp, file = "img/density_alpha_z_cstCyp.svg", width = 4, height = 2)
+
+
+plt_alongTime_CypVar <- plot_LCx_alongTime(LCx_alongTime_Cyp_varIT, LCx_alongTime_Cyp_varSD, title = "Cyp_var")
+plt_alongTime_CypVar
+ggsave(plt_alongTime_CypVar, file = "img/plt_alongTime_CypVar.svg", width = 4, height = 4)
+density_alpha_z_varCyp <- density_plot(fit_SD = fit_Cyp_varSD_MORSE, fit_IT = fit_Cyp_varIT_MORSE, title = "density_alpha_z_varCyp")
+density_alpha_z_varCyp
+ggsave(density_alpha_z_varCyp, file = "img/density_alpha_z_varCyp.svg", width = 4, height = 2)
+```
+
+
+## LCx fct of x
+
+```{r}
+plot_LCx_alongX <- function(x_SD, x_IT, title){
+    ggplot() + theme_bw() +
+    labs( x= "x% Survival", y = "LCx", title = title) +
+    scale_x_continuous(breaks = c(0,10,20,30,40,50,60,70,80,90,100)) +
+    # Ribbon
+     geom_ribbon(data = x_SD,
+      aes(x = 100*X_prop, ymin = qinf95, ymax = qsup95), fill = "grey80", alpha = 0.5) +
+     geom_ribbon(data = x_IT,
+      aes(x = 100*X_prop, ymin = qinf95, ymax = qsup95), fill = "grey80", alpha = 0.5 ) +
+    # SD
+    geom_line(data = x_SD,
+      aes( x = 100*X_prop, y = qinf95), color = "grey30") +
+    geom_line(data = x_SD,
+      aes( x = 100*X_prop, y = qsup95), color = "grey30") +
+    geom_line(data = x_SD,
+      aes( x = 100*X_prop, y = median), size = 0.7) +
+    # IT
+    geom_line(data = x_IT,
+      aes( x = 100*X_prop, y = qinf95), color = "grey30", linetype = 2) +
+   geom_line(data = x_IT,
+      aes( x = 100*X_prop, y = qsup95), color = "grey30", linetype = 2) +
+    geom_line(data = x_IT,
+      aes( x = 100*X_prop, y = median), linetype = 2, size = 0.7)
+}
+
+# cst SD
+# LCx_alongX_Car_cstSD <- LCx_along_X(fit_Car_cstSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_Cyp_cstSD <- LCx_along_X(fit_Cyp_cstSD_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+# LCx_alongX_Dim_cstSD <- LCx_along_X(fit_Dim_cstSD_MORSE, conc_range = c(0,5e5), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_Mal_cstSD <- LCx_along_X(fit_Mal_cstSD_MORSE, conc_range = c(0,10), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_PRZ_cstSD <- LCx_along_X(fit_PRZ_cstSD_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
+# save(LCx_alongX_Car_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstSD.rda")
+# save(LCx_alongX_Cyp_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstSD.rda")
+# save(LCx_alongX_Dim_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstSD.rda")
+# save(LCx_alongX_Mal_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstSD.rda")
+# save(LCx_alongX_PRZ_cstSD, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstSD.rda")
+
+
+# cst IT
+# LCx_alongX_Car_cstIT <- LCx_along_X(fit_Car_cstIT_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_Cyp_cstIT <- LCx_along_X(fit_Cyp_cstIT_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+# LCx_alongX_Dim_cstIT <- LCx_along_X(fit_Dim_cstIT_MORSE, conc_range = c(0,5e5),time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_Mal_cstIT <- LCx_along_X(fit_Mal_cstIT_MORSE, conc_range = c(0,10), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_PRZ_cstIT <- LCx_along_X(fit_PRZ_cstIT_MORSE, conc_range = c(0,100),time_LCx = 4, npoints = 1e3, length = 1e2)
+# save(LCx_alongX_Car_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstIT.rda")
+# save(LCx_alongX_Cyp_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstIT.rda")
+# save(LCx_alongX_Dim_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstIT.rda")
+# save(LCx_alongX_Mal_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstIT.rda")
+# save(LCx_alongX_PRZ_cstIT, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Mal_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_cstIT.rda")
+
+gridExtra::grid.arrange(
+  plot_LCx_alongX(LCx_alongX_Car_cstSD, LCx_alongX_Car_cstIT, title = "Car_cst"),
+  plot_LCx_alongX(LCx_alongX_Cyp_cstSD, LCx_alongX_Cyp_cstIT, title = "Cyp_cst"),
+  plot_LCx_alongX(LCx_alongX_Dim_cstSD, LCx_alongX_Dim_cstIT, title = "Dim_cst"),
+  plot_LCx_alongX(LCx_alongX_Mal_cstSD, LCx_alongX_Mal_cstIT, title = "Mal_cst"),
+  plot_LCx_alongX(LCx_alongX_PRZ_cstSD, LCx_alongX_PRZ_cstIT, title = "PRZ_cst"),
+  ncol = 2
+)
+
+# var SD
+# LCx_alongX_Car_varSD <- LCx_along_X(fit_Car_varSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_Cyp_varSD <- LCx_along_X(fit_Cyp_varSD_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+# LCx_alongX_Dim_varSD <- LCx_along_X(fit_Dim_varSD_MORSE, conc_range = c(0,5e6), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_Mal_varSD <- LCx_along_X(fit_Mal_varSD_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_PRZ_varSD <- LCx_along_X(fit_PRZ_varSD_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e2)
+# save(LCx_alongX_Car_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Car_varSD.rda")
+# save(LCx_alongX_Cyp_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varSD.rda")
+# save(LCx_alongX_Dim_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varSD.rda")
+# save(LCx_alongX_Mal_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varSD.rda")
+# save(LCx_alongX_PRZ_varSD, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varSD.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varSD.rda")
+
+# var IT
+# LCx_alongX_Car_varIT <- LCx_along_X(fit_Car_varIT_MORSE, conc_range = c(0,1e4), time_LCx = 4, npoints = 1e3, length = 1e3)
+# LCx_alongX_Cyp_varIT <- LCx_along_X(fit_Cyp_varIT_MORSE, conc_range = c(0,0.5), time_LCx = 4, npoints = 1e4, length = 1e2)
+# LCx_alongX_Dim_varIT <- LCx_along_X(fit_Dim_varIT_MORSE, conc_range = c(0,5e6), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_Mal_varIT <- LCx_along_X(fit_Mal_varIT_MORSE, conc_range = c(0,100), time_LCx = 4, npoints = 1e3, length = 1e2)
+# LCx_alongX_PRZ_varIT <- LCx_along_X(fit_PRZ_varIT_MORSE, conc_range = c(0,500), time_LCx = 4, npoints = 1e3, length = 1e2)
+# save(LCx_alongX_Car_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Car_varIT.rda")
+# save(LCx_alongX_Cyp_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varIT.rda")
+# save(LCx_alongX_Dim_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varIT.rda")
+# save(LCx_alongX_Mal_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varIT.rda")
+# save(LCx_alongX_PRZ_varIT, file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Car_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Cyp_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Dim_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_Mal_varIT.rda")
+load(file = "Sensitivity_SIMULATION/LCx_alongX_PRZ_varIT.rda")
+
+gridExtra::grid.arrange(
+  plot_LCx_alongX(LCx_alongX_Car_varSD, LCx_alongX_Car_varIT, title = "Car_var"),
+  plot_LCx_alongX(LCx_alongX_Cyp_varSD, LCx_alongX_Cyp_varIT, title = "Cyp_var"),
+  plot_LCx_alongX(LCx_alongX_Dim_varSD, LCx_alongX_Dim_varIT, title = "Dim_var"),
+  plot_LCx_alongX(LCx_alongX_Mal_varSD, LCx_alongX_Mal_varIT, title = "Mal_var"),
+  plot_LCx_alongX(LCx_alongX_PRZ_varSD, LCx_alongX_PRZ_varIT, title = "PRZ_var"),
+  ncol = 2
+)
+```
+
+
+```{r}
+plt_alongX_CypCst <- plot_LCx_alongX(LCx_alongX_Cyp_cstSD, LCx_alongX_Cyp_cstIT, title = "Cyp_cst")
+plt_alongX_CypCst
+ggsave(plt_alongX_CypCst, file = "img/plt_alongX_CypCst.svg", width = 5, height = 4)
+
+plt_alongX_CypVar <-plot_LCx_alongX(LCx_alongX_Cyp_varSD, LCx_alongX_Cyp_varIT, title = "Cyp_var")
+plt_alongX_CypVar
+ggsave(plt_alongX_CypVar, file = "img/plt_alongX_CypVar.svg", width = 5, height = 4)
+```
+
+```{r}
+plt_LCx_alongX <- function(x){
+  plt <- ggplot(data = x) + theme_bw() + 
+  labs(x = "X: percentage of survival", y = expression(Concentration:~LC[x])) +
+  geom_ribbon(aes(x = X_prop, ymin = qinf95, ymax = qsup95), fill = "lightgrey") + 
+  geom_line(aes(x = X_prop, y = median), color = "orange")
+  return(plt)
+}
+```
+
+
+```{r}
+plt_LCx_alongX_Car = arrangeGrob(
+  plt_LCx_alongX(LCx_alongX_Car_cstSD) + ggtitle("Car_cstSD"),
+  plt_LCx_alongX(LCx_alongX_Car_cstIT) + ggtitle("Car_cstIT"),
+  plt_LCx_alongX(LCx_alongX_Car_varSD) + ggtitle("Car_varSD"),
+  plt_LCx_alongX(LCx_alongX_Car_varIT) + ggtitle("Car_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongX_Car.png", plt_LCx_alongX_Car, width = 9, height = 9, dpi = 250) #saves g
+
+
+plt_LCx_alongX_Cyp = arrangeGrob(
+  plt_LCx_alongX(LCx_alongX_Cyp_cstSD) + ggtitle("Cyp_cstSD"),
+  plt_LCx_alongX(LCx_alongX_Cyp_cstIT) + ggtitle("Cyp_cstIT"),
+  plt_LCx_alongX(LCx_alongX_Cyp_varSD) + ggtitle("Cyp_varSD"),
+  plt_LCx_alongX(LCx_alongX_Cyp_varIT) + ggtitle("Cyp_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongX_Cyp.png", plt_LCx_alongX_Cyp, width = 9, height = 9, dpi = 250) #saves g
+
+plt_LCx_alongX_Dim = arrangeGrob(
+  plt_LCx_alongX(LCx_alongX_Dim_cstSD) + ggtitle("Dim_cstSD"),
+  plt_LCx_alongX(LCx_alongX_Dim_cstIT) + ggtitle("Dim_cstIT"),
+  plt_LCx_alongX(LCx_alongX_Dim_varSD) + ggtitle("Dim_varSD"),
+  plt_LCx_alongX(LCx_alongX_Dim_varIT) + ggtitle("Dim_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongX_Dim.png", plt_LCx_alongX_Dim, width = 9, height = 9, dpi = 250) #saves g
+
+plt_LCx_alongX_Mal = arrangeGrob(
+  plt_LCx_alongX(LCx_alongX_Mal_cstSD) + ggtitle("Mal_cstSD"),
+  plt_LCx_alongX(LCx_alongX_Mal_cstIT) + ggtitle("Mal_cstIT"),
+  plt_LCx_alongX(LCx_alongX_Mal_varSD) + ggtitle("Mal_varSD"),
+  plt_LCx_alongX(LCx_alongX_Mal_varIT) + ggtitle("Mal_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongX_Mal.png", plt_LCx_alongX_Mal, width = 9, height = 9, dpi = 250) #saves g
+
+plt_LCx_alongX_PRZ = arrangeGrob(
+  plt_LCx_alongX(LCx_alongX_PRZ_cstSD) + ggtitle("PRZ_cstSD"),
+  plt_LCx_alongX(LCx_alongX_PRZ_cstIT) + ggtitle("PRZ_cstIT"),
+  plt_LCx_alongX(LCx_alongX_PRZ_varSD) + ggtitle("PRZ_varSD"),
+  plt_LCx_alongX(LCx_alongX_PRZ_varIT) + ggtitle("PRZ_varIT"),
+  ncol = 2
+)
+ggsave(filename = "img/plt_LCx_alongX_PRZ.png", plt_LCx_alongX_PRZ, width = 9, height = 9, dpi = 250) #saves g
+```
+
+# Depuration times
+
+```{r paper, eval=FALSE}
+fit_cstIT = fit_Cyp_cstIT_MORSE
+fit_cstSD = fit_Cyp_cstSD_MORSE
+fit_varIT = fit_Cyp_varIT_MORSE
+fit_varSD = fit_Cyp_varSD_MORSE
+
+df_depTime <- data.frame(depTime_cstIT = -log(0.5) / 10^do.call("rbind", fit_cstIT$mcmc)[, "kd_log10"],
+                         depTime_cstSD = -log(0.5) / 10^do.call("rbind", fit_cstSD$mcmc)[, "kd_log10"],
+                         depTime_varIT = -log(0.5) / 10^do.call("rbind", fit_varIT$mcmc)[, "kd_log10"],
+                         depTime_varSD = -log(0.5) / 10^do.call("rbind", fit_varSD$mcmc)[, "kd_log10"]) %>%
+  gather(models, depTime)
+
+df_depTime %>%
+  group_by(models) %>%
+  summarise(median = median(depTime),
+            qinf95 = quantile(depTime, 0.025),
+            qsup95 = quantile(depTime, 0.975))
+
+key_table <- data.frame( models = c("depTime_cstSD", "depTime_cstIT", "depTime_varSD", "depTime_varIT"),
+                         model_type = c("SD", "IT", "SD", "IT"),
+                         profile = c("cst", "cst", "var", "var") )
+ 
+df_depTime_full <- merge(df_depTime, key_table, by ="models") %>%
+  mutate(models = factor(models, levels = c("depTime_cstSD", "depTime_cstIT", "depTime_varSD", "depTime_varIT")),
+         model_type = factor(model_type, levels = c("SD", "IT")))
+  
+
+plt <- ggplot(data = df_depTime_full,
+       aes(depTime, linetype = model_type)) +
+  theme_minimal() +
+  scale_x_log10(breaks = c(0.1, 1,10, 100)) +
+  #scale_x_continuous( limits = c(1,10), breaks = seq(1,10, by = 1) )  +
+  #scale_linetype_manual() +
+  labs(x = "Depuration time at 50% (i.e., half-life)", y = "Scaled densities") +
+  geom_density(aes(y=..scaled..), fill = "grey70", alpha = 0.5) +
+  facet_wrap(~ profile)
+plt
+
+ggsave(plt, filename = "../ARTICLES/GUTS_MultiplicationFactors/img/depuration_time_Cyp.svg", width = 8, height = 3, dpi = 300, device = "svg")
+
+```
+
+
+```{r}
+depTime_plot <- function(fit_cstIT, fit_cstSD, fit_varIT, fit_varSD, title, min_max, breaks){
+  depTime_cstIT <- -log(0.5) / 10^do.call("rbind", fit_cstIT$mcmc)[, "kd_log10"]
+  depTime_cstSD <- -log(0.5) / 10^do.call("rbind", fit_cstSD$mcmc)[, "kd_log10"]
+  depTime_varIT <- -log(0.5) / 10^do.call("rbind", fit_varIT$mcmc)[, "kd_log10"]
+  depTime_varSD <- -log(0.5) / 10^do.call("rbind", fit_varSD$mcmc)[, "kd_log10"]
+  
+  plt_cst <- ggplot() + theme_minimal() +
+    scale_x_log10(limits = c(min(min_max), max(min_max)), breaks = breaks ) +
+    labs(x = "Depuration time at 50% (i.e., half-life)", y = "Density", title = paste("Depuration time cst -", title)) +
+    geom_density(aes(depTime_cstIT), linetype = 2 ) + 
+    geom_density(aes(depTime_cstSD) )
+  
+  plt_var <- ggplot() + theme_minimal() +
+    scale_x_log10(limits = c(min(min_max), max(min_max)), breaks = breaks ) +
+    labs(x = "Depuration time at 50% (i.e., half-life)", y = "Density", title = paste("Depuration time var -", title)) +
+    geom_density(aes(depTime_varIT), linetype = 2 ) + 
+    geom_density(aes(depTime_varSD) )
+
+  plt_depTime =  grid.arrange(plt_cst, plt_var, ncol = 2)
+
+  return(plt_depTime)
+}
+#
+## Car
+depTime_plot_Car <- depTime_plot(fit_cstIT = fit_Car_cstIT_MORSE,
+                                 fit_cstSD = fit_Car_cstSD_MORSE,
+                                 fit_varIT = fit_Car_varIT_MORSE,
+                                 fit_varSD = fit_Car_varSD_MORSE,
+                                 title = "Car",
+                                 min_max = c(-1,1e3),
+                                 breaks = c(1, 1,10,100, 1e3) )
+
+ggsave(plot = depTime_plot_Car, device = "png", filename = "img/depTime_plot_Car.png", width = 11, height = 3)
+#
+## Cyp
+depTime_plot_Cyp <- depTime_plot(fit_cstIT = fit_Cyp_cstIT_MORSE,
+                                 fit_cstSD = fit_Cyp_cstSD_MORSE,
+                                 fit_varIT = fit_Cyp_varIT_MORSE,
+                                 fit_varSD = fit_Cyp_varSD_MORSE,
+                                 title = "Cyp", min_max = c(-1,1e3),
+                                 breaks = c(0.1, 1, 1,10,1e2, 1e3))
+
+ggsave(plot = depTime_plot_Cyp, device = "png", filename = "img/depTime_plot_Cyp.png", width = 11, height = 3)
+#
+## Dim
+depTime_plot_Dim <- depTime_plot(fit_cstIT = fit_Dim_cstIT_MORSE,
+                                 fit_cstSD = fit_Dim_cstSD_MORSE,
+                                 fit_varIT = fit_Dim_varIT_MORSE,
+                                 fit_varSD = fit_Dim_varSD_MORSE,
+                                 title = "Dim", min_max = c(-1,1e3),
+                                 breaks = c(1, 1,10,1e2, 1e3))
+
+ggsave(plot = depTime_plot_Dim, device = "png", filename = "img/depTime_plot_Dim.png", width = 11, height = 3)
+#
+## Mal
+depTime_plot_Mal <- depTime_plot(fit_cstIT = fit_Mal_cstIT_MORSE,
+                                 fit_cstSD = fit_Mal_cstSD_MORSE,
+                                 fit_varIT = fit_Mal_varIT_MORSE,
+                                 fit_varSD = fit_Mal_varSD_MORSE,
+                                 title = "Mal", min_max = c(-1,1e3),
+                                 breaks = c(1, 1,10,1e2, 1e3))
+
+ggsave(plot = depTime_plot_Mal, device = "png", filename = "img/depTime_plot_Mal.png", width = 11, height = 3)
+#
+## PRZ
+depTime_plot_PRZ <- depTime_plot(fit_cstIT = fit_PRZ_cstIT_MORSE,
+                                 fit_cstSD = fit_PRZ_cstSD_MORSE,
+                                 fit_varIT = fit_PRZ_varIT_MORSE,
+                                 fit_varSD = fit_PRZ_varSD_MORSE,
+                                 title = "PRZ", min_max = c(-1,1e3),
+                                 breaks = c(1, 1,10,1e2, 1e3))
+
+ggsave(plot = depTime_plot_PRZ, device = "png", filename = "img/depTime_plot_PRZ.png", width = 11, height = 3)
+```
+
+
+# MFx 
+
+For each compound, we only select the worst case that we divide by a factor 100 and try the MFx analysis
+
+```{r}
+load(file = "DATA_SIMULATION/data_PRZ_cst.rda")
+load(file = "DATA_SIMULATION/data_Car_cst.rda")
+load(file = "DATA_SIMULATION/data_Cyp_cst.rda")
+load(file = "DATA_SIMULATION/data_Dim_cst.rda")
+load(file = "DATA_SIMULATION/data_Mal_cst.rda")
+#
+load(file = "DATA_SIMULATION/data_PRZ_var.rda")
+load(file = "DATA_SIMULATION/data_Car_var.rda")
+load(file = "DATA_SIMULATION/data_Cyp_var.rda")
+load(file = "DATA_SIMULATION/data_Dim_var.rda")
+load(file = "DATA_SIMULATION/data_Mal_var.rda")
+```
+
+## Profiles
+
+```{r}
+# cst
+MFx_profile_Car_cst <- dplyr::filter(Car_cst, conc == max(Car_cst$conc) ) %>% select(time, conc) %>% mutate(conc = conc/100)
+MFx_profile_Cyp_cst <- dplyr::filter(Cyp_cst, conc == max(Cyp_cst$conc) ) %>% select(time, conc) %>% mutate(conc = conc/1000)
+MFx_profile_Dim_cst <- dplyr::filter(Dim_cst, conc == max(Dim_cst$conc) ) %>% select(time, conc) %>% mutate(conc = conc/1000)
+MFx_profile_Mal_cst <- dplyr::filter(Mal_cst, conc == max(Mal_cst$conc) ) %>% select(time, conc) %>% mutate(conc = conc/100)
+MFx_profile_PRZ_cst <- dplyr::filter(PRZ_cst, conc == max(PRZ_cst$conc) ) %>% select(time, conc) %>% mutate(conc = conc/100)
+
+# var
+MFx_profile_Car_varA <- dplyr::filter(Car_var, replicate == "A") %>% select(time, conc) %>% mutate(conc = conc/100)
+MFx_profile_Cyp_varA <- dplyr::filter(Cyp_var, replicate == "A") %>% select(time, conc) %>% mutate(conc = conc/10)
+MFx_profile_Dim_varA <- dplyr::filter(Dim_var, replicate == "A") %>% select(time, conc) %>% mutate(conc = conc/100)
+MFx_profile_Mal_varA <- dplyr::filter(Mal_var, replicate == "A") %>% select(time, conc) %>% mutate(conc = conc/50)
+MFx_profile_PRZ_varA <- dplyr::filter(PRZ_var, replicate == "varA") %>% select(time, conc) %>% mutate(conc = conc/50)
+
+MFx_profile_Car_varB <- dplyr::filter(Car_var, replicate == "B") %>% select(time, conc) %>% mutate(conc = conc/100)
+MFx_profile_Cyp_varB <- dplyr::filter(Cyp_var, replicate == "B") %>% select(time, conc) %>% mutate(conc = conc/10)
+MFx_profile_Dim_varB <- dplyr::filter(Dim_var, replicate == "B") %>% select(time, conc) %>% mutate(conc = conc/100)
+MFx_profile_Mal_varB <- dplyr::filter(Mal_var, replicate == "B") %>% select(time, conc) %>% mutate(conc = conc/50)
+MFx_profile_PRZ_varB <- dplyr::filter(PRZ_var, replicate == "varB") %>% select(time, conc) %>% mutate(conc = conc/50)
+```
+
+
+```{r}
+plot_profile <- function(df_cst, df_varA, df_varB, up_lim){
+  
+  df_cst_gg = filter(df_cst, !is.na(conc))
+  df_varA_gg = filter(df_varA, !is.na(conc))
+  df_varB_gg = filter(df_varB, !is.na(conc))
+  
+  plt = grid.arrange(
+  ggplot(data = df_cst_gg, aes(x = time, y = conc)) +
+    scale_x_continuous(breaks = 0:4) +
+    theme_bw() + geom_line() + scale_y_continuous(limits = c(0, up_lim)),
+  ggplot(data = df_varA_gg, aes(x = time, y = conc)) +
+     scale_x_continuous(breaks = 0:10) +
+     theme_bw() + geom_line() + scale_y_continuous(limits = c(0, up_lim)),
+  ggplot(data = df_varB_gg, aes(x = time, y = conc)) +
+     scale_x_continuous(breaks = 0:10) +
+    theme_bw() + geom_line() + scale_y_continuous(limits = c(0, up_lim)),
+  ncol = 3)
+  return(plt)
+}
+plot_profile(df_cst = MFx_profile_Car_cst, df_varA = MFx_profile_Car_varA, df_varB = MFx_profile_Car_varB, up_lim = 75)
+plot_profile(df_cst = MFx_profile_Cyp_cst, df_varA = MFx_profile_Cyp_varA, df_varB = MFx_profile_Cyp_varB, up_lim = 0.015)
+plot_profile(df_cst = MFx_profile_Dim_cst, df_varA = MFx_profile_Dim_varA, df_varB = MFx_profile_Dim_varB, up_lim = 500)
+plot_profile(df_cst = MFx_profile_Mal_cst, df_varA = MFx_profile_Mal_varA, df_varB = MFx_profile_Mal_varB, up_lim = 0.1)
+plot_profile(df_cst = MFx_profile_PRZ_cst, df_varA = MFx_profile_PRZ_varA, df_varB = MFx_profile_PRZ_varB, up_lim = 0.75)
+```
+
+
+```{r}
+# cst
+MFx_Car_cstSD <- MFx(object = fit_Car_cstSD_MORSE, data_predict = MFx_profile_Car_cst)
+MFx_Car_cstIT <- MFx(object = fit_Car_cstIT_MORSE, data_predict = MFx_profile_Car_cst)
+MFx_Cyp_cstSD <- MFx(object = fit_Cyp_cstSD_MORSE, data_predict = MFx_profile_Cyp_cst)
+MFx_Cyp_cstIT <- MFx(object = fit_Cyp_cstIT_MORSE, data_predict = MFx_profile_Cyp_cst)
+MFx_Dim_cstSD <- MFx(object = fit_Dim_cstSD_MORSE, data_predict = MFx_profile_Dim_cst)
+MFx_Dim_cstIT <- MFx(object = fit_Dim_cstIT_MORSE, data_predict = MFx_profile_Dim_cst)
+MFx_Mal_cstSD <- MFx(object = fit_Mal_cstSD_MORSE, data_predict = MFx_profile_Mal_cst)
+MFx_Mal_cstIT <- MFx(object = fit_Mal_cstIT_MORSE, data_predict = MFx_profile_Mal_cst)
+MFx_PRZ_cstSD <- MFx(object = fit_PRZ_cstSD_MORSE, data_predict = MFx_profile_PRZ_cst)
+MFx_PRZ_cstIT <- MFx(object = fit_PRZ_cstIT_MORSE, data_predict = MFx_profile_PRZ_cst)
+
+# var A
+MFx_Car_varSD_A <- MFx(object = fit_Car_varSD_MORSE, data_predict = MFx_profile_Car_varA)
+MFx_Car_varIT_A <- MFx(object = fit_Car_varIT_MORSE, data_predict = MFx_profile_Car_varA)
+MFx_Cyp_varSD_A <- MFx(object = fit_Cyp_varSD_MORSE, data_predict = MFx_profile_Cyp_varA)
+MFx_Cyp_varIT_A <- MFx(object = fit_Cyp_varIT_MORSE, data_predict = MFx_profile_Cyp_varA)
+MFx_Dim_varSD_A <- MFx(object = fit_Dim_varSD_MORSE, data_predict = MFx_profile_Dim_varA)
+MFx_Dim_varIT_A <- MFx(object = fit_Dim_varIT_MORSE, data_predict = MFx_profile_Dim_varA)
+MFx_Mal_varSD_A <- MFx(object = fit_Mal_varSD_MORSE, data_predict = MFx_profile_Mal_varA)
+MFx_Mal_varIT_A <- MFx(object = fit_Mal_varIT_MORSE, data_predict = MFx_profile_Mal_varA)
+MFx_PRZ_varSD_A <- MFx(object = fit_PRZ_varSD_MORSE, data_predict = MFx_profile_PRZ_varA)
+MFx_PRZ_varIT_A <- MFx(object = fit_PRZ_varIT_MORSE, data_predict = MFx_profile_PRZ_varA)
+
+# var B
+MFx_Car_varSD_B <- MFx(object = fit_Car_varSD_MORSE, data_predict = MFx_profile_Car_varB)
+MFx_Car_varIT_B <- MFx(object = fit_Car_varIT_MORSE, data_predict = MFx_profile_Car_varB)
+MFx_Cyp_varSD_B <- MFx(object = fit_Cyp_varSD_MORSE, data_predict = MFx_profile_Cyp_varB)
+MFx_Cyp_varIT_B <- MFx(object = fit_Cyp_varIT_MORSE, data_predict = MFx_profile_Cyp_varB)
+MFx_Dim_varSD_B <- MFx(object = fit_Dim_varSD_MORSE, data_predict = MFx_profile_Dim_varB)
+MFx_Dim_varIT_B <- MFx(object = fit_Dim_varIT_MORSE, data_predict = MFx_profile_Dim_varB)
+MFx_Mal_varSD_B <- MFx(object = fit_Mal_varSD_MORSE, data_predict = MFx_profile_Mal_varB)
+MFx_Mal_varIT_B <- MFx(object = fit_Mal_varIT_MORSE, data_predict = MFx_profile_Mal_varB)
+MFx_PRZ_varSD_B <- MFx(object = fit_PRZ_varSD_MORSE, data_predict = MFx_profile_PRZ_varB)
+MFx_PRZ_varIT_B <- MFx(object = fit_PRZ_varIT_MORSE, data_predict = MFx_profile_PRZ_varB)
+```
+
+### Plot
+
+```{r}
+grid.arrange(plot(MFx_Car_cstSD, log_scale = TRUE),
+             plot(MFx_Cyp_cstSD, log_scale = TRUE),
+             plot(MFx_Dim_cstSD, log_scale = TRUE),
+             plot(MFx_Mal_cstSD, log_scale = TRUE),
+             plot(MFx_PRZ_cstSD, log_scale = TRUE))
+```
+
+Plot for model IT
+
+```{r}
+grid.arrange(plot(MFx_Car_cstIT, log_scale = TRUE),
+             plot(MFx_Cyp_cstIT, log_scale = TRUE),
+             plot(MFx_Dim_cstIT, log_scale = TRUE),
+             plot(MFx_Mal_cstIT, log_scale = TRUE),
+             plot(MFx_PRZ_cstIT, log_scale = TRUE))
+```
+
+```{r}
+# plot(MFx_Car_varSD_A)
+# plot(MFx_Car_varIT_A)
+# plot(MFx_Cyp_varSD_A)
+# plot(MFx_Cyp_varIT_A)
+# plot(MFx_Dim_varSD_A)
+# plot(MFx_Dim_varIT_A)
+# plot(MFx_Mal_varSD_A)
+# plot(MFx_Mal_varIT_A)
+# plot(MFx_PRZ_varSD_A)
+# plot(MFx_PRZ_varIT_A)
+grid.arrange(plot(MFx_Car_varSD_A, log_scale = TRUE),
+             plot(MFx_Car_varIT_A, log_scale = TRUE),
+             plot(MFx_Cyp_varSD_A, log_scale = TRUE),
+             plot(MFx_Cyp_varIT_A, log_scale = TRUE),
+             plot(MFx_Dim_varSD_A, log_scale = TRUE),
+             plot(MFx_Dim_varIT_A, log_scale = TRUE),
+             plot(MFx_Mal_varSD_A, log_scale = TRUE),
+             plot(MFx_Mal_varIT_A, log_scale = TRUE),
+             plot(MFx_PRZ_varSD_A, log_scale = TRUE),
+             plot(MFx_PRZ_varIT_A, log_scale = TRUE))
+```
+
+
+```{r}
+# plot(MFx_Car_varSD_B)
+# plot(MFx_Car_varIT_B)
+# plot(MFx_Cyp_varSD_B)
+# plot(MFx_Cyp_varIT_B)
+# plot(MFx_Dim_varSD_B)
+# plot(MFx_Dim_varIT_B)
+# plot(MFx_Mal_varSD_B)
+# plot(MFx_Mal_varIT_B)
+# plot(MFx_PRZ_varSD_B)
+# plot(MFx_PRZ_varIT_B)
+grid.arrange(plot(MFx_Car_varSD_B, log_scale = TRUE),
+             plot(MFx_Car_varIT_B, log_scale = TRUE),
+             plot(MFx_Cyp_varSD_B, log_scale = TRUE),
+             plot(MFx_Cyp_varIT_B, log_scale = TRUE),
+             plot(MFx_Dim_varSD_B, log_scale = TRUE),
+             plot(MFx_Dim_varIT_B, log_scale = TRUE),
+             plot(MFx_Mal_varSD_B, log_scale = TRUE),
+             plot(MFx_Mal_varIT_B, log_scale = TRUE),
+             plot(MFx_PRZ_varSD_B, log_scale = TRUE),
+             plot(MFx_PRZ_varIT_B, log_scale = TRUE))
+```
+
+## MFx along X percent survival
+
+```{r}
+MFx_alongX <- function(X_vec, fit, profile ){
+  ls_MFx_alongX = list()
+  for(i in 1:length(X_vec)){
+    MFX_df <- MFx(object = fit, data_predict = profile, X = X_vec[i])
+    ls_MFx_alongX[[i]] <- data.frame(MFx_q50 = MFX_df$df_MFx$MFx[1],
+                                     MFx_qinf95 = MFX_df$df_MFx$MFx[2],
+                                     MFx_qsup95 = MFX_df$df_MFx$MFx[3],
+                                     X_percent = X_vec[i])
+  }
+  df <- do.call("rbind", ls_MFx_alongX)
+  df
+  return(df)
+}
+
+plot_MFx_alongX <- function(MFx_alongX_SD, MFx_alongX_IT, title){
+  
+  plt = ggplot() + theme_bw() +
+    labs(x = "Percentage of survival reduction",
+         y = "Multiplication factor",
+         title = title) +
+    scale_x_continuous(breaks = c(10,20,30,40,50,60,70,80,90)) +
+    geom_point(data = MFx_alongX_SD,
+              aes(x = X_percent, y = MFx_q50), size = 1) +
+    geom_point(data = MFx_alongX_IT,
+              aes(x = X_percent, y = MFx_q50), size = 1) +
+    geom_ribbon(data = MFx_alongX_SD,
+                aes(x = X_percent, ymin = MFx_qinf95, ymax = MFx_qsup95),
+                fill = "grey70", alpha = 0.4) +
+    geom_ribbon(data = MFx_alongX_IT,
+                aes(x = X_percent, ymin = MFx_qinf95, ymax = MFx_qsup95),
+                fill = "grey70", alpha = 0.4) +
+    geom_line(data = MFx_alongX_SD,
+              aes(x = X_percent, y = MFx_qinf95), color= "grey70") +
+    geom_line(data = MFx_alongX_SD,
+              aes(x = X_percent, y = MFx_qsup95), color= "grey70") +
+    geom_line(data = MFx_alongX_SD,
+              aes(x = X_percent, y = MFx_q50)) +
+    geom_line(data = MFx_alongX_IT,
+              aes(x = X_percent, y = MFx_qinf95), linetype = 2, color= "grey70") +
+    geom_line(data = MFx_alongX_IT,
+                aes(x = X_percent, y = MFx_qsup95), linetype = 2, color= "grey70") +
+    geom_line(data = MFx_alongX_IT,
+              aes(x = X_percent, y = MFx_q50), linetype = 2)
+  
+    return(plt)
+    
+}
+```
+
+```{r}
+X_vec <- seq(10, 90, length = 25)
+
+# MFx_alongX_Car_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Car_cstSD_MORSE, profile = MFx_profile_Car_cst)
+# save(MFx_alongX_Car_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstSD.rda")
+# MFx_alongX_Cyp_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_cstSD_MORSE, profile = MFx_profile_Cyp_cst)
+# save(MFx_alongX_Cyp_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstSD.rda")
+# MFx_alongX_Dim_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_cstSD_MORSE, profile = MFx_profile_Dim_cst)
+# save(MFx_alongX_Dim_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstSD.rda")
+# MFx_alongX_Mal_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_cstSD_MORSE, profile = MFx_profile_Mal_cst)
+# save(MFx_alongX_Mal_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstSD.rda")
+# MFx_alongX_PRZ_cstSD <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_cstSD_MORSE, profile = MFx_profile_PRZ_cst)
+# save(MFx_alongX_PRZ_cstSD, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstSD.rda")
+# 
+# MFx_alongX_Car_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Car_cstIT_MORSE, profile = MFx_profile_Car_cst)
+# save(MFx_alongX_Car_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstIT.rda")
+# MFx_alongX_Cyp_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_cstIT_MORSE, profile = MFx_profile_Cyp_cst)
+# save(MFx_alongX_Cyp_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstIT.rda")
+# MFx_alongX_Dim_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_cstIT_MORSE, profile = MFx_profile_Dim_cst)
+# save(MFx_alongX_Dim_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstIT.rda")
+# MFx_alongX_Mal_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_cstIT_MORSE, profile = MFx_profile_Mal_cst)
+# save(MFx_alongX_Mal_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstIT.rda")
+# MFx_alongX_PRZ_cstIT <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_cstIT_MORSE, profile = MFx_profile_PRZ_cst)
+# save(MFx_alongX_PRZ_cstIT, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstIT.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstSD.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Dim_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_cstIT.rda")
+
+# MFx_alongX_Car_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varA)
+# save(MFx_alongX_Car_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_A.rda")
+# MFx_alongX_Cyp_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varA)
+# save(MFx_alongX_Cyp_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_A.rda")
+# MFx_alongX_Dim_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varA)
+# save(MFx_alongX_Dim_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_A.rda")
+# MFx_alongX_Mal_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varA)
+# save(MFx_alongX_Mal_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_A.rda")
+# MFx_alongX_PRZ_varSD_A <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varA)
+# save(MFx_alongX_PRZ_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_A.rda")
+
+# MFx_alongX_Car_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varA)
+# save(MFx_alongX_Car_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_A.rda")
+# MFx_alongX_Cyp_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varA)
+# save(MFx_alongX_Cyp_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_A.rda")
+# MFx_alongX_Dim_varIT_A <- MFx_alongX(X_vec = seq(10, 70, length = 19), fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varA)
+# save(MFx_alongX_Dim_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_A.rda")
+# MFx_alongX_Mal_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varA)
+# save(MFx_alongX_Mal_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_A.rda")
+# MFx_alongX_PRZ_varIT_A <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varA)
+# save(MFx_alongX_PRZ_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_A.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_A.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_A.rda")
+
+
+# MFx_alongX_Car_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varB)
+# save(MFx_alongX_Car_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_B.rda")
+# MFx_alongX_Cyp_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varB)
+# save(MFx_alongX_Cyp_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_B.rda")
+# MFx_alongX_Dim_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varB)
+# save(MFx_alongX_Dim_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_B.rda")
+# MFx_alongX_Mal_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varB)
+# save(MFx_alongX_Mal_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_B.rda")
+# MFx_alongX_PRZ_varSD_B <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varB)
+# save(MFx_alongX_PRZ_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_B.rda")
+# 
+# MFx_alongX_Car_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varB)
+# save(MFx_alongX_Car_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_B.rda")
+# MFx_alongX_Cyp_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varB)
+# save(MFx_alongX_Cyp_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_B.rda")
+# MFx_alongX_Dim_varIT_B <- MFx_alongX(X_vec = seq(10, 70, length = 19), fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varB)
+# save(MFx_alongX_Dim_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_B.rda")
+# MFx_alongX_Mal_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varB)
+# save(MFx_alongX_Mal_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_B.rda")
+# MFx_alongX_PRZ_varIT_B <- MFx_alongX(X_vec = X_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varB)
+# save(MFx_alongX_PRZ_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_B.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varSD_B.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Car_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Cyp_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Dim_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_Mal_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongX_PRZ_varIT_B.rda")
+
+```
+
+```{r}
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Car_cstSD, MFx_alongX_IT = MFx_alongX_Car_cstIT, title = "MFx_cstCar")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Cyp_cstSD, MFx_alongX_IT = MFx_alongX_Cyp_cstIT, title = "MFx_cstCyp")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Dim_cstSD, MFx_alongX_IT = MFx_alongX_Dim_cstIT, title = "MFx_cstDim")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Mal_cstSD, MFx_alongX_IT = MFx_alongX_Mal_cstIT, title = "MFx_cstMal")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_PRZ_cstSD, MFx_alongX_IT = MFx_alongX_PRZ_cstIT, title = "MFx_cstPRZ")
+
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Car_varSD_A, MFx_alongX_IT = MFx_alongX_Car_varIT_A, title = "MFx_varCarA")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Cyp_varSD_A, MFx_alongX_IT = MFx_alongX_Cyp_varIT_A, title = "MFx_varCypA")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Dim_varSD_A, MFx_alongX_IT = MFx_alongX_Dim_varIT_A, title = "MFx_varDimA")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Mal_varSD_A, MFx_alongX_IT = MFx_alongX_Mal_varIT_A, title = "MFx_varMalA")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_PRZ_varSD_A, MFx_alongX_IT = MFx_alongX_PRZ_varIT_A, title = "MFx_varPRZA")
+
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Car_varSD_B, MFx_alongX_IT = MFx_alongX_Car_varIT_B, title = "MFx_varCarB")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Cyp_varSD_B, MFx_alongX_IT = MFx_alongX_Cyp_varIT_B, title = "MFx_varCypB")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Dim_varSD_B, MFx_alongX_IT = MFx_alongX_Dim_varIT_B, title = "MFx_varDimB")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_Mal_varSD_B, MFx_alongX_IT = MFx_alongX_Mal_varIT_B, title = "MFx_varMalB")
+plot_MFx_alongX(MFx_alongX_SD = MFx_alongX_PRZ_varSD_B, MFx_alongX_IT = MFx_alongX_PRZ_varIT_B, title = "MFx_varPRZB")
+```
+
+## MFx with t at X=10
+
+```{r}
+MFx_alongTime <- function(Time_vec, fit, profile, X=10 ){
+  
+  df_time <- data.frame(time = Time_vec)
+  
+  df_interpolate <- dplyr::full_join(profile, df_time, by = "time") %>%
+    arrange(time) %>%
+     dplyr::mutate(conc = zoo::na.approx(conc, time, na.rm = FALSE)) %>%
+    # from package zoo : 'na.locf()' carry the last observation forward to replace your NA values.
+    dplyr::mutate(conc = ifelse(is.na(conc),zoo::na.locf(conc),conc) )
+  
+  Time_vec <- filter(df_interpolate, time >= 1)$time
+  profile <- df_interpolate
+  
+  ls_MFx_alongTime = list()
+  for(i in 1:length(Time_vec)){
+    
+    MFX_df <- tryCatch({
+        MFx(object = fit, data_predict = profile, time_MFx =  Time_vec[i], X=X)
+      }, error = function(e) {
+        MFX_df = list(df_MFx = data.frame(MFx=c(NA,NA,NA)))
+    })
+    
+    #MFX_df <- MFx(object = fit, data_predict = profile, time_MFx =  Time_vec[i], X=X)
+    ls_MFx_alongTime[[i]] <- data.frame(MFx_q50 = MFX_df$df_MFx$MFx[1],
+                                     MFx_qinf95 = MFX_df$df_MFx$MFx[2],
+                                     MFx_qsup95 = MFX_df$df_MFx$MFx[3],
+                                     Time_vec = Time_vec[i])
+  }
+  
+  df <- do.call("rbind", ls_MFx_alongTime)
+  df
+  return(df)
+}
+
+plot_MFx_alongTime <- function(MFx_alongTime_SD, MFx_alongTime_IT, title, time_max=10){
+  
+  plt = ggplot() + theme_bw() +
+    labs(x = "Time of predicted survival rate",
+         y = "Multiplication factor",
+         title = title) +
+    scale_x_continuous(breaks = 1:time_max) +
+    geom_point(data = MFx_alongTime_SD,
+              aes(x = Time_vec, y = MFx_q50), size = 1) +
+    geom_point(data = MFx_alongTime_IT,
+              aes(x = Time_vec, y = MFx_q50), size = 1) +
+    geom_ribbon(data = MFx_alongTime_SD,
+                aes(x = Time_vec, ymin = MFx_qinf95, ymax = MFx_qsup95),
+                fill = "grey70", alpha = 0.4) +
+    geom_ribbon(data = MFx_alongTime_IT,
+                aes(x = Time_vec, ymin = MFx_qinf95, ymax = MFx_qsup95),
+                fill = "grey70", alpha = 0.4) +
+    geom_line(data = MFx_alongTime_SD,
+              aes(x = Time_vec, y = MFx_q50)) +
+    geom_line(data = MFx_alongTime_SD,
+              aes(x = Time_vec, y = MFx_qinf95), color= "grey70") +
+    geom_line(data = MFx_alongTime_SD,
+              aes(x = Time_vec, y = MFx_qsup95), color= "grey70") +
+    geom_line(data = MFx_alongTime_IT,
+              aes(x = Time_vec, y = MFx_qinf95), linetype = 2, color= "grey70") +
+    geom_line(data = MFx_alongTime_IT,
+                aes(x = Time_vec, y = MFx_qsup95), linetype = 2, color= "grey70") +
+    geom_line(data = MFx_alongTime_IT,
+              aes(x = Time_vec, y = MFx_q50), linetype = 2)
+  
+    return(plt)
+    
+}
+```
+
+```{r}
+Time_vec = seq(1, 10, length.out = 10)
+
+# MFx_alongTime_Car_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_cstSD_MORSE, profile = MFx_profile_Car_cst)
+# save(MFx_alongTime_Car_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstSD.rda")
+# MFx_alongTime_Cyp_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_cstSD_MORSE, profile = MFx_profile_Cyp_cst)
+# save(MFx_alongTime_Cyp_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstSD.rda")
+# MFx_alongTime_Dim_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_cstSD_MORSE, profile = MFx_profile_Dim_cst)
+# save(MFx_alongTime_Dim_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstSD.rda")
+# MFx_alongTime_Mal_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_cstSD_MORSE, profile = MFx_profile_Mal_cst)
+# save(MFx_alongTime_Mal_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstSD.rda")
+# MFx_alongTime_PRZ_cstSD <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_cstSD_MORSE, profile = MFx_profile_PRZ_cst)
+# save(MFx_alongTime_PRZ_cstSD, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstSD.rda")
+# 
+# MFx_alongTime_Car_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_cstIT_MORSE, profile = MFx_profile_Car_cst)
+# save(MFx_alongTime_Car_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstIT.rda")
+# MFx_alongTime_Cyp_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_cstIT_MORSE, profile = MFx_profile_Cyp_cst)
+# save(MFx_alongTime_Cyp_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstIT.rda")
+# MFx_alongTime_Dim_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_cstIT_MORSE, profile = MFx_profile_Dim_cst)
+# save(MFx_alongTime_Dim_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstIT.rda")
+# MFx_alongTime_Mal_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_cstIT_MORSE, profile = MFx_profile_Mal_cst)
+# save(MFx_alongTime_Mal_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstIT.rda")
+# MFx_alongTime_PRZ_cstIT <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_cstIT_MORSE, profile = MFx_profile_PRZ_cst)
+# save(MFx_alongTime_PRZ_cstIT, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstIT.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstSD.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstSD.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_cstIT.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_cstIT.rda")
+
+# MFx_alongTime_Car_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varA)
+# save(MFx_alongTime_Car_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_A.rda")
+# MFx_alongTime_Cyp_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varA)
+# save(MFx_alongTime_Cyp_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_A.rda")
+# MFx_alongTime_Dim_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varA)
+# save(MFx_alongTime_Dim_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_A.rda")
+# MFx_alongTime_Mal_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varA)
+# save(MFx_alongTime_Mal_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_A.rda")
+# MFx_alongTime_PRZ_varSD_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varA)
+# save(MFx_alongTime_PRZ_varSD_A, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_A.rda")
+# 
+# MFx_alongTime_Car_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varA)
+# save(MFx_alongTime_Car_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_A.rda")
+# MFx_alongTime_Cyp_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varA)
+# save(MFx_alongTime_Cyp_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_A.rda")
+# MFx_alongTime_Dim_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varA)
+# save(MFx_alongTime_Dim_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_A.rda")
+# MFx_alongTime_Mal_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varA)
+# save(MFx_alongTime_Mal_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_A.rda")
+# MFx_alongTime_PRZ_varIT_A <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varA)
+# save(MFx_alongTime_PRZ_varIT_A, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_A.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_A.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_A.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_A.rda")
+
+
+# MFx_alongTime_Car_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varSD_MORSE, profile = MFx_profile_Car_varB)
+# save(MFx_alongTime_Car_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_B.rda")
+# MFx_alongTime_Cyp_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varSD_MORSE, profile = MFx_profile_Cyp_varB)
+# save(MFx_alongTime_Cyp_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_B.rda")
+# MFx_alongTime_Dim_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varSD_MORSE, profile = MFx_profile_Dim_varB)
+# save(MFx_alongTime_Dim_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_B.rda")
+# MFx_alongTime_Mal_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varSD_MORSE, profile = MFx_profile_Mal_varB)
+# save(MFx_alongTime_Mal_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_B.rda")
+# MFx_alongTime_PRZ_varSD_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varSD_MORSE, profile = MFx_profile_PRZ_varB)
+# save(MFx_alongTime_PRZ_varSD_B, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_B.rda")
+# 
+# MFx_alongTime_Car_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Car_varIT_MORSE, profile = MFx_profile_Car_varB)
+# save(MFx_alongTime_Car_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_B.rda")
+# MFx_alongTime_Cyp_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Cyp_varIT_MORSE, profile = MFx_profile_Cyp_varB)
+# save(MFx_alongTime_Cyp_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_B.rda")
+# MFx_alongTime_Dim_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Dim_varIT_MORSE, profile = MFx_profile_Dim_varB)
+# save(MFx_alongTime_Dim_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_B.rda")
+# MFx_alongTime_Mal_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_Mal_varIT_MORSE, profile = MFx_profile_Mal_varB)
+# save(MFx_alongTime_Mal_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_B.rda")
+# MFx_alongTime_PRZ_varIT_B <- MFx_alongTime(Time_vec = Time_vec, fit = fit_PRZ_varIT_MORSE, profile = MFx_profile_PRZ_varB)
+# save(MFx_alongTime_PRZ_varIT_B, file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_B.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varSD_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varSD_B.rda")
+
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Car_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Cyp_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Dim_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_Mal_varIT_B.rda")
+load(file = "Sensitivity_SIMULATION/MFx_alongTime_PRZ_varIT_B.rda")
+
+```
+
+```{r}
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Car_cstSD, MFx_alongTime_IT = MFx_alongTime_Car_cstIT, title = "MFx_cstCar")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Cyp_cstSD, MFx_alongTime_IT = MFx_alongTime_Cyp_cstIT, title = "MFx_cstCyp")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Dim_cstSD, MFx_alongTime_IT = MFx_alongTime_Dim_cstIT, title = "MFx_cstDim")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Mal_cstSD, MFx_alongTime_IT = MFx_alongTime_Mal_cstIT, title = "MFx_cstMal")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_PRZ_cstSD, MFx_alongTime_IT = MFx_alongTime_PRZ_cstIT, title = "MFx_cstPRZ")
+
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Car_varSD_A, MFx_alongTime_IT = MFx_alongTime_Car_varIT_A, title = "MFx_varCarA")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Cyp_varSD_A, MFx_alongTime_IT = MFx_alongTime_Cyp_varIT_A, title = "MFx_varCypA")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Dim_varSD_A, MFx_alongTime_IT = MFx_alongTime_Dim_varIT_A, title = "MFx_varDimA")
+plot_MFx_alongTime(
+  MFx_alongTime_SD = dplyr::filter(MFx_alongTime_Mal_varSD_A, Time_vec <= 22),
+  MFx_alongTime_IT = dplyr::filter(MFx_alongTime_Mal_varIT_A, Time_vec <= 22),
+  title = "MFx_varMalA", time_max=22)
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_PRZ_varSD_A, MFx_alongTime_IT = MFx_alongTime_PRZ_varIT_A, title = "MFx_varPRZA")
+
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Car_varSD_B, MFx_alongTime_IT = MFx_alongTime_Car_varIT_B, title = "MFx_varCarB")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Cyp_varSD_B, MFx_alongTime_IT = MFx_alongTime_Cyp_varIT_B, title = "MFx_varCypB")
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_Dim_varSD_B, MFx_alongTime_IT = MFx_alongTime_Dim_varIT_B, title = "MFx_varDimB")
+plot_MFx_alongTime(
+  MFx_alongTime_SD = dplyr::filter(MFx_alongTime_Mal_varSD_B, Time_vec <= 22),
+  MFx_alongTime_IT = dplyr::filter(MFx_alongTime_Mal_varIT_B, Time_vec <= 22),
+  title = "MFx_varMalB", time_max=22)
+plot_MFx_alongTime(MFx_alongTime_SD = MFx_alongTime_PRZ_varSD_B, MFx_alongTime_IT = MFx_alongTime_PRZ_varIT_B, title = "MFx_varPRZB")
+```
+
